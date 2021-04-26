@@ -5,6 +5,7 @@
   vars:
     #guest_name: test-1
     vol_pool: home
+    base_image: CentOS-7-x86_64-GenericCloud-2003.qcow2
     vcpus: 1
     memory: 2048
   tasks:
@@ -24,7 +25,7 @@
 
     - name: Create vm
       shell: >
-        virt-boot --base-image {{ vol_pool }}/CentOS-7-x86_64-GenericCloud-2003.qcow2 -k /root/.ssh/id_rsa.pub \
+        virt-boot --base-image {{ vol_pool }}/{{ base_image }} -k /root/.ssh/id_rsa.pub \
         -c {{ vcpus }} -m {{ memory }} -u user-data {{ guest_name }}
       args:
         chdir: /var/lib/libvirt/images
