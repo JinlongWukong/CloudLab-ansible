@@ -1,0 +1,73 @@
+---
+- name: VM bootup
+  hosts: all
+  gather_facts: no
+  vars:
+    #guest_name: test-1
+    vol_pool: home
+    vcpus: 1
+    memory: 2048
+  tasks:
+    - name: Check vm existence
+      shell: virsh list --all --name | grep  "^{{ guest_name }}$" || true
+      changed_when: false
+      register: exitence
+      tags: always
+
+    - name: Get vm state
+      virt:
+        name: "{{ guest_name }}"
+        command: status
+      register: state
+      when: exitence.stdout
+      tags: always
+
+    - name: Create vm
+      shell: >
+        virt-boot --base-image {{ vol_pool }}/CentOS-7-x86_64-GenericCloud-2003.qcow2 -k /root/.ssh/id_rsa.pub \
+        -c {{ vcpus }} -m {{ memory }} -u user-data {{ guest_name }}
+      args:
+        chdir: /var/lib/libvirt/images
+      when: not exitence.stdout
+      tags: create
+
+    - name: Get vm IP address
+      shell: virt-addr {{ guest_name }}
+      register: address
+      when:
+        - exitence.stdout
+        - state.status == 'running'
+      tags: address
+
+    - name: Get vm status
+      shell: virsh dominfo {{ guest_name }} | awk '/^State:/{print $2}'
+      register: status
+      when:
+        - exitence.stdout
+      tags: status
+
+    - name: Reboot vm
+      shell: virsh reboot {{ guest_name }}
+      when:
+        - exitence.stdout
+        - state.status == 'running'
+      tags: reboot
+
+    - name: Startup vm
+      shell: virsh start {{ guest_name }}
+      when:
+        - exitence.stdout
+        - state.status != 'running'
+      tags: start
+
+    - name: Shutdown vm
+      shell: virsh shutdown {{ guest_name }}
+      when:
+        - exitence.stdout
+        - state.status == 'running'
+      tags: shutdown
+
+    - name: Delete vm
+      shell: virt-delete {{ guest_name }}
+      when: exitence.stdout
+      tags: delete
