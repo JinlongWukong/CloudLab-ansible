@@ -11,9 +11,17 @@ logging.basicConfig(format=format, level=logging.DEBUG,
                     datefmt="%H:%M:%S")
 
 
-# example: curl -i -d '{"vmName":"test-1","hostIp":"127.0.0.1", "hostUser":"root", "hostPass":"xxxxxx", \
-# "vmAction":"create", "vmVcpus": 2, "vmMemory": 4096}' -H "Content-Type: application/json" -X POST \
-# http://localhost:9134/vm
+''' example payload
+curl -i -d '{
+    "hostIp": "127.0.0.1",
+    "hostPass": "xxxxxx",
+    "hostUser": "root",
+    "vmAction": "create",
+    "vmMemory": 4096,
+    "vmName": "test-1",
+    "vmVcpus": 2
+}' -H "Content-Type: application/json" -X POST http://localhost:9134/vm
+'''
 @app.route('/vm', methods=['POST'])
 def vmAction():
     payload = request.get_json()
