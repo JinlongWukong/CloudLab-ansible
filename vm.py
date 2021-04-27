@@ -25,6 +25,7 @@ class VM(object):
         for event in callback.host_ok:
             if event['task'] == "Get vm status" and event['host'] == self.host_ip:
                 self.status = event['result']['stdout']
+
         return self.status
 
     def get_info(self):

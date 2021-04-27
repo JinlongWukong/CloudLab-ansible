@@ -18,6 +18,7 @@ logging.basicConfig(format=format, level=logging.DEBUG,
 def vmAction():
     payload = request.get_json()
     logging.debug(payload)
+
     field = {'hostIp', 'hostUser', 'hostPass', 'vmName', 'vmAction'}
     if field - set(payload.keys()):
         error_msg = "Input json missing some field! " + "It must include " + str(field)
@@ -56,6 +57,7 @@ def vmReader():
     data = {}
     payload = request.args
     logging.debug(payload)
+
     field = {'hostIp', 'hostUser', 'hostPass', 'vmName'}
     if field - set(payload.keys()):
         error_msg = "Input json missing some field! " + "It must include " + str(field)
