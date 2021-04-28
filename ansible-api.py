@@ -24,7 +24,7 @@ curl -i -d '{
 }' -H "Content-Type: application/json" -X POST http://localhost:9134/vm
 '''
 @app.route('/vm', methods=['POST'])
-def vmAction():
+def vm_action():
     payload = request.get_json()
     logging.debug(payload)
 
@@ -38,7 +38,6 @@ def vmAction():
         try:
             vm = VM(payload['hostIp'], payload['hostUser'], payload['hostPass'], payload['vmName'])
             if action == 'create':
-                # TODO add flavor
                 vm.vcpus = payload['vmVcpus']
                 vm.memory = payload['vmMemory']
                 vm.os_type = payload['vmType']
@@ -63,7 +62,7 @@ def vmAction():
 
 # example: curl -X GET http://localhost:9134/vm?vmName=test\&hostIp=127.0.0.1\&hostPass=xxxxx\&hostUser=root
 @app.route('/vm', methods=['GET'])
-def vmReader():
+def vm_reader():
     data = {}
     payload = request.args
     logging.debug(payload)
