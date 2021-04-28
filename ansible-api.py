@@ -18,6 +18,7 @@ curl -i -d '{
     "hostUser": "root",
     "vmAction": "create",
     "vmMemory": 4096,
+    "vmDisk": 20,
     "vmName": "test-1",
     "vmType": "centos7",
     "vmVcpus": 2
@@ -40,8 +41,11 @@ def vm_action():
             if action == 'create':
                 vm.vcpus = payload['vmVcpus']
                 vm.memory = payload['vmMemory']
+                vm.disk = payload['vmDisk']
                 vm.os_type = payload['vmType']
+                logging.info("VM creating")
                 vm.create()
+                logging.info("VM created")
             elif action == 'start':
                 vm.start()
             elif action == 'shutdown':

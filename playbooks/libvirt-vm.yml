@@ -38,7 +38,7 @@
     - name: Create vm
       shell: >
         virt-boot --base-image {{ vol_pool }}/{{ base_image }} -k /root/.ssh/id_rsa.pub \
-        -c {{ vcpus }} -m {{ memory }} -u user-data {{ guest_name }}
+        -c {{ vcpus }} -m {{ memory }} -s {{ disk }} -u user-data {{ guest_name }}
       args:
         chdir: /var/lib/libvirt/images
       when: not exitence.stdout
