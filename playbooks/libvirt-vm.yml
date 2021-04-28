@@ -2,10 +2,11 @@
 - name: VM bootup
   hosts: all
   gather_facts: no
+  vars_files:
+    - vars/all.yml
   vars:
     #guest_name: test-1
     vol_pool: home
-    base_image: CentOS-7-x86_64-GenericCloud-2003.qcow2
     vcpus: 1
     memory: 2048
   tasks:
@@ -22,6 +23,17 @@
       register: state
       when: exitence.stdout
       tags: always
+
+    - name: Set base image
+      set_fact:
+        base_image: |-
+          {% for item in libvirt.base_image -%}
+              {% if item == os_type -%}
+                  {{ libvirt.base_image[item].name -}}
+              {% endif -%}
+          {% endfor -%}
+      when: not exitence.stdout
+      tags: create
 
     - name: Create vm
       shell: >

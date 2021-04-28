@@ -1,0 +1,9 @@
+---
+libvirt:
+  base_image:
+    centos7:
+      name: CentOS-7-x86_64-GenericCloud-2003.qcow2
+      download_url: http://xxxx
+    ubuntu18:
+      name: bionic-server-cloudimg-amd64.img
+      download_url: http://xxxx

@@ -19,6 +19,7 @@ curl -i -d '{
     "vmAction": "create",
     "vmMemory": 4096,
     "vmName": "test-1",
+    "vmType": "centos7",
     "vmVcpus": 2
 }' -H "Content-Type: application/json" -X POST http://localhost:9134/vm
 '''
@@ -40,6 +41,7 @@ def vmAction():
                 # TODO add flavor
                 vm.vcpus = payload['vmVcpus']
                 vm.memory = payload['vmMemory']
+                vm.os_type = payload['vmType']
                 vm.create()
             elif action == 'start':
                 vm.start()
