@@ -15,6 +15,7 @@ from ansible.vars.manager import VariableManager
 from ansible import constants
 from ansible import context
 
+
 class AnsibleTaskExecutor(object):
     def __init__(self):
         self.loader = DataLoader()
