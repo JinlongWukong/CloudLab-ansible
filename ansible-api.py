@@ -82,7 +82,7 @@ def vm_reader():
     else:
         try:
             vm = VM(payload['hostIp'], payload['hostUser'], payload['hostPass'], payload['vmName'])
-            data['name'], data['status'], data['address'] = vm.get_info()
+            data['name'], data['status'], data['address'], data['vnc_port'] = vm.get_info()
         except Exception as e:
             logging.error(str(e))
             return jsonify({"error": str(e)}), 500

@@ -24,7 +24,7 @@ class VM(object):
         """
             Get VM latest information
         :return:
-            vm name, address, status
+            vm name, address, status, vnc_port
         """
         result_code, callback = self.executor.execute('libvirt-vm.yml', self.ansible_inventory,
                                                       extra_vars={"guest_name": self.name},
