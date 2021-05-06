@@ -1,0 +1,18 @@
+---
+- name: Install node host
+  hosts: all
+  gather_facts: no
+  vars_files:
+    - vars/all.yml
+  vars:
+    #guest_name: test-1
+    vol_pool: home
+    vcpus: 1
+    memory: 2048
+    vnc_pass: 12345678
+  tasks:
+    - name: Check vm existence
+      shell: virsh list --all --name | grep  "^{{ guest_name }}$" || true
+      changed_when: false
+      register: exitence
+      tags: always
