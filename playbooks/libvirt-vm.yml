@@ -60,6 +60,13 @@
         - exitence.stdout
       tags: status
 
+    - name: Get vnc port
+      shell: virsh vncdisplay {{ guest_name }} | sed '/^$/d'
+      register: vnc
+      when:
+        - exitence.stdout
+      tags: vnc
+
     - name: Reboot vm
       shell: virsh reboot {{ guest_name }}
       when:

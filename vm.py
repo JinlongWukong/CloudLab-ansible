@@ -14,6 +14,7 @@ class VM(object):
         self.disk = disk
         self.os_type = os_type
         self.vnc_pass = vnc_pass
+        self.vnc_port = None
         self.address = None
         self.status = None
         self.ansible_inventory = "{} ansible_ssh_user={} ansible_ssh_pass={}".format(host_ip, host_user, host_pass)
@@ -27,7 +28,7 @@ class VM(object):
         """
         result_code, callback = self.executor.execute('libvirt-vm.yml', self.ansible_inventory,
                                                       extra_vars={"guest_name": self.name},
-                                                      tags=['address', 'status'])
+                                                      tags=['address', 'status', 'vnc'])
         if result_code:
             raise Exception(callback.get_all_result())
 
@@ -38,10 +39,12 @@ class VM(object):
                 self.address = event['result']['stdout']
             elif event['task'] == "Get vm status" and event['host'] == self.host_ip:
                 self.status = event['result']['stdout']
+            elif event['task'] == "Get vnc port" and event['host'] == self.host_ip:
+                self.vnc_port = event['result']['stdout']
             else:
                 pass
 
-        return self.name, self.status, self.address
+        return self.name, self.status, self.address, self.vnc_port
 
     def create(self):
         result_code, callback = self.executor.execute('libvirt-vm.yml', self.ansible_inventory,
