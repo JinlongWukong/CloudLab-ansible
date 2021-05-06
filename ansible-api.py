@@ -43,6 +43,8 @@ def vm_action():
                 vm.memory = payload['vmMemory']
                 vm.disk = payload['vmDisk']
                 vm.os_type = payload['vmType']
+                # optional params
+                if "vncPass" in payload.keys(): vm.vnc_pass = payload['vncPass']
                 logging.info("VM creating")
                 vm.create()
                 logging.info("VM created")
