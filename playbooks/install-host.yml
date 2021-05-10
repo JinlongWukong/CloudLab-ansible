@@ -1,18 +1,118 @@
 ---
-- name: Install node host
+- name: Install compute host
   hosts: all
-  gather_facts: no
+  gather_facts: yes
   vars_files:
     - vars/all.yml
   vars:
-    #guest_name: test-1
-    vol_pool: home
-    vcpus: 1
-    memory: 2048
-    vnc_pass: 12345678
+    selinux_state: permissive
+
   tasks:
-    - name: Check vm existence
-      shell: virsh list --all --name | grep  "^{{ guest_name }}$" || true
+    - name: Check selinux existence
+      shell: which getenforce
+      register: selinux_check
+      failed_when: false
       changed_when: false
-      register: exitence
-      tags: always
+      tags: selinux
+
+    - name: Set selinux policy
+      selinux:
+        policy: targeted
+        state: "{{ selinux_state }}"
+      when: selinux_check.rc == 0
+      tags: selinux
+
+    - name: Check firewalld existence
+      shell: which firewall-cmd
+      register: firewalld_check
+      failed_when: false
+      changed_when: false
+      tags: firewalld
+
+    - name: Disable firewalld
+      service:
+        name: firewalld
+        state: stopped
+        enabled: no
+      when: firewalld_check.rc == 0
+      tags: firewalld
+
+    - name: Install libvirt and dependencies
+      yum:
+        name: "{{ libvirt.dependencies[ansible_os_family|lower] }}"
+        state: present
+      tags: install_libvirt
+
+    - name: Enable libvirt service
+      service:
+        name: "{{ item }}"
+        enabled: yes
+        state: started
+      with_items:
+        - libvirtd
+      tags: install_libvirt
+
+    - name: Download virt-utils
+      unarchive:
+        src: "{{ virt_utils.release }}"
+        dest: /var/lib/libvirt/images
+        remote_src: yes
+        exclude:
+          - Makefile
+          - LICENSE
+          - README.md
+          - .gitignore
+        list_files: true
+      register: download_result
+      tags: virt_utils
+
+    - name: Copy virt-utils scripts to /var/lib/libvirt/images
+      shell: /bin/cp -f {{ download_result.files[0] }}virt-* .
+      args:
+        chdir: /var/lib/libvirt/images
+      tags: virt_utils
+
+    - name: Install virt-utils, by making soft link
+      shell: >
+        find . -maxdepth 1 -type f -name "virt-*" \
+        | awk -F'/' '{print "ln -sf /var/lib/libvirt/images/"$2" /usr/local/bin/"$2}' | sh -
+      args:
+        chdir: /var/lib/libvirt/images
+      tags: virt_utils
+
+    - name: Generate ssh key
+      openssh_keypair:
+        path: /root/.ssh/id_rsa
+      tags: ssh_key
+
+    - name: Download base image
+      get_url:
+        url: "{{ libvirt.base_image[item]['download_url'] }}"
+        dest: /var/lib/libvirt/images
+      with_items: "{{ libvirt.base_image.keys() | list }}"
+      tags: download_image
+
+    - name: Print total memory size
+      debug:
+        msg: "{{ ansible_memtotal_mb }}"
+      tags: info, memory
+
+    - name: Print total cpu count
+      debug:
+        msg: "{{ ansible_processor_count }}"
+      tags: info, cpu
+
+    - name: Print os type
+      debug:
+        msg: "{{ ansible_distribution }}"
+      tags: info, type
+
+    - name: Get virt vol disk usage
+      shell: df -h --output=used,size /var/lib/libvirt/images/ | tail -1
+      register: disk_usage
+      tags: info, disk
+
+    - name: Print virt vol disk usage
+      debug:
+        msg: "{{ disk_usage.stdout.split() | join('/')}}"
+      tags: info, disk

@@ -1,0 +1,29 @@
+---
+- name: Check compute host
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: Print total memory size
+      debug:
+        msg: "{{ ansible_memtotal_mb }}"
+      tags: memory
+
+    - name: Print total cpu count
+      debug:
+        msg: "{{ ansible_processor_count }}"
+      tags: cpu
+
+    - name: Print os type
+      debug:
+        msg: "{{ ansible_distribution }}"
+      tags: type
+
+    - name: Get virt vol disk usage
+      shell: df -h --output=used,size /var/lib/libvirt/images/ | tail -1
+      register: disk_usage
+      tags: disk
+
+    - name: Print virt vol disk usage
+      debug:
+        msg: "{{ disk_usage.stdout.split() | join('/')}}"
+      tags: disk

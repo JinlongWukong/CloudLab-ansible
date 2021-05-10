@@ -3,13 +3,13 @@
 import logging
 from flask import Flask, jsonify, request
 from vm import VM
+from host import HOST
 
 app = Flask(__name__)
 
 format = "%(asctime)s: %(levelname)s : %(message)s"
 logging.basicConfig(format=format, level=logging.DEBUG,
                     datefmt="%H:%M:%S")
-
 
 ''' example payload
 curl -i -d '{
@@ -67,6 +67,7 @@ def vm_action():
 
     return jsonify(""), 202
 
+
 # example: curl -X GET http://localhost:9134/vm?vmName=test\&hostIp=127.0.0.1\&hostPass=xxxxx\&hostUser=root
 @app.route('/vm', methods=['GET'])
 def vm_reader():
@@ -88,6 +89,63 @@ def vm_reader():
             return jsonify({"error": str(e)}), 500
 
     return jsonify(data), 200
+
+
+''' example payload
+curl -i -d '{
+    "Ip": "127.0.0.1",
+    "Pass": "xxxxxx",
+    "User": "root",
+    "Role": "compute",
+    "Action": "install"
+}' -H "Content-Type: application/json" -X POST http://localhost:9134/host
+'''
+@app.route('/host', methods=['POST'])
+def host_action():
+    payload = request.get_json()
+    logging.debug(payload)
+
+    field = {'Ip', 'User', 'Pass', 'Role', 'Action'}
+    if field - set(payload.keys()):
+        error_msg = "Input json missing some field! " + "It must include " + str(field)
+        logging.error(error_msg)
+        return jsonify({"error": error_msg}), 400
+    else:
+        try:
+            host = HOST(payload['Ip'], payload['User'], payload['Pass'], payload['Role'])
+            if payload['Action'] == 'install':
+                logging.info("HOST installation is started")
+                host.install()
+                logging.info("HOST installation is done")
+
+        except Exception as e:
+            logging.error(str(e))
+            return jsonify({"error": str(e)}), 500
+
+    return jsonify(""), 202
+
+
+# example: curl -X GET http://localhost:9134/host?Ip=127.0.0.1\&Pass=xxxxx\&User=root
+@app.route('/host', methods=['GET'])
+def host_reader():
+    data = {}
+    payload = request.args
+    logging.debug(payload)
+
+    field = {'Ip', 'User', 'Pass'}
+    if field - set(payload.keys()):
+        error_msg = "Input json missing some field! " + "It must include " + str(field)
+        logging.error(error_msg)
+        return jsonify({"error": error_msg}), 400
+    else:
+        try:
+            host = HOST(payload['Ip'], payload['User'], payload['Pass'])
+            data['cpu'], data['memory'], data['disk'], data['type'] = host.get_info()
+        except Exception as e:
+            logging.error(str(e))
+            return jsonify({"error": str(e)}), 500
+
+    return jsonify(data), 202
 
 
 try:

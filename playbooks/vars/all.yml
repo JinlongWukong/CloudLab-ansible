@@ -3,7 +3,17 @@ libvirt:
   base_image:
     centos7:
       name: CentOS-7-x86_64-GenericCloud-2003.qcow2
-      download_url: http://xxxx
+      download_url: https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud-2003.qcow2
     ubuntu18:
       name: bionic-server-cloudimg-amd64.img
-      download_url: http://xxxx
+      download_url: https://cloud-images.ubuntu.com/releases/bionic/release/ubuntu-18.04-server-cloudimg-amd64.img
+  dependencies:
+    redhat:
+      - qemu-kvm
+      - libvirt
+      - libvirt-python
+      - virt-install
+      - bridge-utils
+
+virt_utils:
+  release: https://github.com/JinlongWukong/virt-utils/archive/refs/tags/0.0.2.tar.gz
