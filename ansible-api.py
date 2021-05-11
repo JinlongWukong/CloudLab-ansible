@@ -102,6 +102,7 @@ curl -i -d '{
 '''
 @app.route('/host', methods=['POST'])
 def host_action():
+    data = {}
     payload = request.get_json()
     logging.debug(payload)
 
@@ -115,14 +116,14 @@ def host_action():
             host = HOST(payload['Ip'], payload['User'], payload['Pass'], payload['Role'])
             if payload['Action'] == 'install':
                 logging.info("HOST installation is started")
-                host.install()
+                data['cpu'], data['memory'], data['disk'], data['type'] = host.install()
                 logging.info("HOST installation is done")
 
         except Exception as e:
             logging.error(str(e))
             return jsonify({"error": str(e)}), 500
 
-    return jsonify(""), 202
+    return jsonify(data), 200
 
 
 # example: curl -X GET http://localhost:9134/host?Ip=127.0.0.1\&Pass=xxxxx\&User=root

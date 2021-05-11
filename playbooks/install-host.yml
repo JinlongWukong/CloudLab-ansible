@@ -108,11 +108,11 @@
       tags: info, type
 
     - name: Get virt vol disk usage
-      shell: df -h --output=used,size /var/lib/libvirt/images/ | tail -1
+      shell: df -m --output=size /var/lib/libvirt/images/ | tail -1
       register: disk_usage
       tags: info, disk
 
     - name: Print virt vol disk usage
       debug:
-        msg: "{{ disk_usage.stdout.split() | join('/')}}"
+        msg: "{{ disk_usage.stdout | trim | int}}"
       tags: info, disk
