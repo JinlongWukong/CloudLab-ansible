@@ -6,7 +6,8 @@
     - vars/all.yml
   vars:
     selinux_state: permissive
-
+    vol_pool_name: images
+    vol_pool_path: /var/lib/libvirt/images
   tasks:
     - name: Check selinux existence
       shell: which getenforce
@@ -74,11 +75,33 @@
 
     - name: Install virt-utils, by making soft link
       shell: >
-        find . -maxdepth 1 -type f -name "virt-*" \
+        find . -maxdepth 1 -type f -executable \
         | awk -F'/' '{print "ln -sf /var/lib/libvirt/images/"$2" /usr/local/bin/"$2}' | sh -
       args:
         chdir: /var/lib/libvirt/images
       tags: virt_utils
+
+    - name: Check vol_pool existence
+      shell: virsh pool-list --all | grep " {{ vol_pool_name }} " || true
+      register: vol_pool_check
+      changed_when: false
+      tags: vol_pool
+
+    - name: Define vol pool
+      shell: virsh pool-define-as --name {{ vol_pool_name }} --type dir --target {{ vol_pool_path }}
+      when: not vol_pool_check.stdout
+      register: define_vol_pool
+      tags: vol_pool
+
+    - name: Mark vol pool autostart
+      shell: virsh pool-autostart {{ vol_pool_name }}
+      when: define_vol_pool.changed or (vol_pool_check.stdout and "'yes' not in vol_pool_check.stdout")
+      tags: vol_pool
+
+    - name: Active vol pool
+      shell: virsh pool-start {{ vol_pool_name }}
+      when: define_vol_pool.changed or (vol_pool_check.stdout and "' active' not in vol_pool_check.stdout")
+      tags: vol_pool
 
     - name: Generate ssh key
       openssh_keypair:
