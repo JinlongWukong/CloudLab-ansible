@@ -46,3 +46,13 @@ class HOST(object):
         if result_code:
             raise Exception(callback.get_all_result())
 
+    def port_dnat(self, rules):
+        """
+            Set iptables rules
+        :return:
+            none
+        """
+        result_code, callback = self.executor.execute('iptables.yml', self.ansible_inventory,
+                                                      extra_vars={"rules": rules})
+        if result_code:
+            raise Exception(callback.get_all_result())

@@ -146,8 +146,42 @@ def host_reader():
             logging.error(str(e))
             return jsonify({"error": str(e)}), 500
 
-    return jsonify(data), 202
+    return jsonify(data), 200
 
+''' example payload
+curl -i -d'{
+    "Ip": "127.0.0.1",
+    "Pass": "xxxxxxx",
+    "User": "root",
+    "rules": [
+      {
+        "dport": "32346",
+        "destination": "192.168.122.89:22",
+        "state": "present",
+        "protocol": "tcp"
+      }
+    ]
+}' -H "Content-Type: application/json" -X POST http://localhost:9134/host/dnat
+'''
+@app.route('/host/dnat', methods=['POST'])
+def port_dnat():
+    payload = request.get_json()
+    logging.debug(payload)
+
+    field = {'Ip', 'User', 'Pass', 'rules'}
+    if field - set(payload.keys()):
+        error_msg = "Input json missing some field! " + "It must include " + str(field)
+        logging.error(error_msg)
+        return jsonify({"error": error_msg}), 400
+    else:
+        try:
+            host = HOST(payload['Ip'], payload['User'], payload['Pass'])
+            host.port_dnat(payload['rules'])
+        except Exception as e:
+            logging.error(str(e))
+            return jsonify({"error": str(e)}), 500
+
+    return jsonify(""), 202
 
 try:
     app.run(debug=False, host='::', port=9134)
