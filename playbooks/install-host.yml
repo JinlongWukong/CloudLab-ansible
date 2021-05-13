@@ -95,12 +95,12 @@
 
     - name: Mark vol pool autostart
       shell: virsh pool-autostart {{ vol_pool_name }}
-      when: define_vol_pool.changed or (vol_pool_check.stdout and "'yes' not in vol_pool_check.stdout")
+      when: define_vol_pool.changed or (vol_pool_check.stdout and 'yes' not in vol_pool_check.stdout)
       tags: vol_pool
 
     - name: Active vol pool
       shell: virsh pool-start {{ vol_pool_name }}
-      when: define_vol_pool.changed or (vol_pool_check.stdout and "' active' not in vol_pool_check.stdout")
+      when: define_vol_pool.changed or (vol_pool_check.stdout and ' active' not in vol_pool_check.stdout)
       tags: vol_pool
 
     - name: Generate ssh key
