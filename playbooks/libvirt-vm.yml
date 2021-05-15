@@ -6,7 +6,8 @@
     - vars/all.yml
   vars:
     #guest_name: test-1
-    vol_pool: home
+    hostname: ""
+    vol_pool: images
     vcpus: 1
     memory: 2048
     vnc_pass: 12345678
@@ -39,7 +40,7 @@
     - name: Create vm
       shell: >
         virt-boot --base-image {{ vol_pool }}/{{ base_image }} -k /root/.ssh/id_rsa.pub \
-        -c {{ vcpus }} -m {{ memory }} -s {{ disk }} -u user-data --vnc-pass {{ vnc_pass }} {{ guest_name }}
+        -c {{ vcpus }} -m {{ memory }} -s {{ disk }} -h {{ hostname }} -u user-data --vnc-pass {{ vnc_pass }} {{ guest_name }}
       args:
         chdir: /var/lib/libvirt/images
       when: not exitence.stdout

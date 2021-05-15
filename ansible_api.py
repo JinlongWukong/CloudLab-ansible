@@ -46,6 +46,10 @@ def vm_action():
                 # optional params
                 if "vncPass" in payload.keys() and payload['vncPass']:
                     vm.vnc_pass = payload['vncPass']
+                if "vmHostname" in payload.keys() and payload['vmHostname']:
+                    vm.hostname = payload['vmHostname']
+                else:
+                    vm.hostname = payload['vmName']
                 logging.info("VM creating")
                 vm.create()
                 logging.info("VM created")
