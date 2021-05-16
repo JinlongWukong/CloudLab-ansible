@@ -10,6 +10,7 @@
     vol_pool: images
     vcpus: 1
     memory: 2048
+    root_pass: 12345678
     vnc_pass: 12345678
   tasks:
     - name: Check vm existence
@@ -37,10 +38,17 @@
       when: not exitence.stdout
       tags: create
 
+    - name: Generate user-data file
+      template:
+        src: user-data.j2
+        dest: /tmp/{{ guest_name }}.ud
+      when: not exitence.stdout
+      tags: create
+
     - name: Create vm
       shell: >
         virt-boot --base-image {{ vol_pool }}/{{ base_image }} -k /root/.ssh/id_rsa.pub \
-        -c {{ vcpus }} -m {{ memory }} -s {{ disk }} -h {{ hostname }} -u user-data --vnc-pass {{ vnc_pass }} {{ guest_name }}
+        -c {{ vcpus }} -m {{ memory }} -s {{ disk }} -h {{ hostname }} -u /tmp/{{ guest_name }}.ud --vnc-pass {{ vnc_pass }} {{ guest_name }}
       args:
         chdir: /var/lib/libvirt/images
       when: not exitence.stdout

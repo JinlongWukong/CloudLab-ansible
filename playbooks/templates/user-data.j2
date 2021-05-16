@@ -1,0 +1,15 @@
+#cloud-config
+# vim:syntax=yaml
+ssh_pwauth: true
+
+disable_root: false
+chpasswd:
+  list: |
+    root:{{ root_pass }}
+  expire: False
+
+runcmd:
+  - sed -i 's/#PermitRootLogin .*/PermitRootLogin yes/g; s/^PermitRootLogin .*/PermitRootLogin yes/g' /etc/ssh/sshd_config
+  - sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+  - sed -i 's/#UseDNS .*/UseDNS no/g' /etc/ssh/sshd_config
+  - systemctl restart sshd.service

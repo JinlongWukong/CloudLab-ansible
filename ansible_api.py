@@ -44,6 +44,8 @@ def vm_action():
                 vm.disk = payload['vmDisk']
                 vm.os_type = payload['vmType']
                 # optional params
+                if "rootPass" in payload.keys() and payload['rootPass']:
+                    vm.root_pass = payload['rootPass']
                 if "vncPass" in payload.keys() and payload['vncPass']:
                     vm.vnc_pass = payload['vncPass']
                 if "vmHostname" in payload.keys() and payload['vmHostname']:
