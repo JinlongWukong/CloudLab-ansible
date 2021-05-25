@@ -24,6 +24,8 @@ curl -i -d '{
     "vmVcpus": 2
 }' -H "Content-Type: application/json" -X POST http://localhost:9134/vm
 '''
+
+
 @app.route('/vm', methods=['POST'])
 def vm_action():
     payload = request.get_json()
@@ -106,6 +108,8 @@ curl -i -d '{
     "Action": "install"
 }' -H "Content-Type: application/json" -X POST http://localhost:9134/host
 '''
+
+
 @app.route('/host', methods=['POST'])
 def host_action():
     data = {}
@@ -154,6 +158,7 @@ def host_reader():
 
     return jsonify(data), 200
 
+
 ''' example payload
 curl -i -d'{
     "Ip": "127.0.0.1",
@@ -169,6 +174,8 @@ curl -i -d'{
     ]
 }' -H "Content-Type: application/json" -X POST http://localhost:9134/host/dnat
 '''
+
+
 @app.route('/host/dnat', methods=['POST'])
 def port_dnat():
     payload = request.get_json()
@@ -189,7 +196,9 @@ def port_dnat():
 
     return jsonify(""), 202
 
-try:
-    app.run(debug=False, host='::', port=9134)
-except Exception as e:
-    logging.error(e)
+
+if __name__ == "__main__":
+    try:
+        app.run(debug=False, host='::', port=9134)
+    except Exception as e:
+        logging.error(e)
