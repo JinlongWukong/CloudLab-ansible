@@ -18,4 +18,4 @@ COPY . /app
 
 EXPOSE 9134
 # run entrypoint.sh
-ENTRYPOINT ["gunicorn --bind 0.0.0.0:9134 ansible_api:app"]
+ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:9134", "ansible_api:app"]
