@@ -8,6 +8,7 @@
     selinux_state: permissive
     vol_pool_name: images
     vol_pool_path: /var/lib/libvirt/images
+  environment: "{{ proxy_env | default(omit)}}"
   tasks:
     - name: Check selinux existence
       shell: which getenforce

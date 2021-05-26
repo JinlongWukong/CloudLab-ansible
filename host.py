@@ -1,4 +1,5 @@
 from ansible_task_executor import AnsibleTaskExecutor
+import os
 
 
 class HOST(object):
@@ -14,10 +15,12 @@ class HOST(object):
         self.os_type = None
         self.ansible_inventory = "{} ansible_ssh_user={} ansible_ssh_pass={}".format(ip, user, password)
         self.executor = AnsibleTaskExecutor()
+        self.proxy = os.getenv('https_proxy')
 
     def install(self):
         result_code, callback = self.executor.execute('install-host.yml', self.ansible_inventory,
-                                                      extra_vars={"role": self.role})
+                                                      extra_vars={"role": self.role,
+                                                                  "proxy_env": {'https_proxy': self.proxy}})
         if result_code:
             raise Exception(callback.get_all_result())
 
