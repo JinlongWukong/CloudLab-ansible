@@ -116,6 +116,12 @@
       with_items: "{{ libvirt.base_image.keys() | list }}"
       tags: download_image
 
+    - name: Restart libvirt service to get the new added images
+      service:
+        name: libvirtd
+        state: restarted
+      tags: download_image
+
     - name: Print total memory size
       debug:
         msg: "{{ ansible_memtotal_mb }}"
