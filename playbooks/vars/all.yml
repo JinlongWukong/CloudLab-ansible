@@ -16,4 +16,4 @@ libvirt:
       - bridge-utils
 
 virt_utils:
-  release: https://github.com/JinlongWukong/virt-utils/archive/refs/tags/0.0.2.tar.gz
+  release: https://github.com/JinlongWukong/virt-utils/archive/refs/tags/0.0.3.tar.gz
