@@ -69,7 +69,7 @@
       tags: virt_utils
 
     - name: Copy virt-utils scripts to /var/lib/libvirt/images
-      shell: /bin/cp -f {{ download_result.files[0] }}virt-* .
+      shell: /bin/cp -f {{ download_result.files[0] }}virt-* -f {{ download_result.files[0] }}create-config-drive .
       args:
         chdir: /var/lib/libvirt/images
       tags: virt_utils
