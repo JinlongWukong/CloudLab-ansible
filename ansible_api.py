@@ -151,7 +151,9 @@ def host_reader():
     else:
         try:
             host = HOST(payload['Ip'], payload['User'], payload['Pass'])
-            data['memory_avail'], data['cpu_load'], data['disk_usage'] = host.get_info()
+            memory_avail, cpu_load, data['disk_usage'] = host.get_info()
+            data['cpu_load'] = float(cpu_load)
+            data['memory_avail'] = int(memory_avail)
         except Exception as e:
             logging.error(str(e))
             return jsonify({"error": str(e)}), 500
