@@ -40,7 +40,7 @@ class HOST(object):
 
     def get_info(self):
         """
-            Get host latest information
+            Get host cpu/mem/disk usage
         :return:
             cpu, mem, disk
         """
@@ -48,6 +48,18 @@ class HOST(object):
 
         if result_code:
             raise Exception(callback.get_all_result())
+
+        for event in callback.host_ok:
+            if event['task'] == "Print total memory avail" and event['host'] == self.ip:
+                memory_avail = event['result']['msg']
+            elif event['task'] == "Print cpu load usage" and event['host'] == self.ip:
+                cpu_load = event['result']['msg']
+            elif event['task'] == "Print virt vol disk usage" and event['host'] == self.ip:
+                disk_usage = event['result']['msg']
+            else:
+                pass
+
+        return memory_avail, cpu_load, disk_usage
 
     def port_dnat(self, rules):
         """

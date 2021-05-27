@@ -1,29 +1,34 @@
 ---
-- name: Check compute host
+- name: Check host usage
   hosts: all
-  gather_facts: yes
+  gather_facts: no
   tasks:
-    - name: Print total memory size
-      debug:
-        msg: "{{ ansible_memtotal_mb }}"
+    - name: Get memory avail
+      shell: free -m | grep -i Mem | awk '{print $NF}'
+      register: memory_avail
       tags: memory
 
-    - name: Print total cpu count
+    - name: Print total memory avail
       debug:
-        msg: "{{ ansible_processor_count }}"
+        msg: "{{ memory_avail.stdout | trim | int}}"
+      tags: memory
+
+    - name: Get cpu load usage 15mins
+      shell: uptime  | awk '{print $NF}'
+      register: cpu_load
       tags: cpu
 
-    - name: Print os type
+    - name: Print cpu load usage
       debug:
-        msg: "{{ ansible_distribution }}"
-      tags: type
+        msg: "{{ cpu_load.stdout | trim }}"
+      tags: cpu
 
     - name: Get virt vol disk usage
-      shell: df -h --output=used,size /var/lib/libvirt/images/ | tail -1
+      shell: df -m --output=ipcent /var/lib/libvirt/images/  | tail -1
       register: disk_usage
       tags: disk
 
     - name: Print virt vol disk usage
       debug:
-        msg: "{{ disk_usage.stdout.split() | join('/')}}"
+        msg: "{{ disk_usage.stdout | trim }}"
       tags: disk
