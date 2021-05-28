@@ -14,5 +14,6 @@
         to_destination: "{{ item.destination }}"
         state: "{{ item.state }}"
         comment: "cloudLab DNAT"
+        wait: 20
       loop: "{{ rules }}"
 
