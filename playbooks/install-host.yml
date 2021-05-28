@@ -122,6 +122,14 @@
         state: restarted
       tags: download_image
 
+    - name: Accept all forward to virbr0
+      iptables:
+        chain: FORWARD
+        out_interface: virbr0
+        action: insert
+        jump: ACCEPT
+      tags: iptables
+
     - name: Print total memory size
       debug:
         msg: "{{ ansible_memtotal_mb }}"
