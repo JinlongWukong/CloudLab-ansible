@@ -45,6 +45,16 @@
         state: present
       tags: install_libvirt
 
+    - name: Add post action for libvirtd service to insert iptables rule
+      blockinfile:
+        dest: /usr/lib/systemd/system/libvirtd.service
+        insertafter: "^ExecStart="
+        block: |
+          ExecStartPost=/bin/sh -c "until virsh connect; do echo 'wait...';sleep 1; done"
+          ExecStartPost=/bin/sh -c "iptables -D FORWARD -o virbr0 -m conntrack --ctstate NEW -j ACCEPT || true"
+          ExecStartPost=/bin/sh -c "iptables -I FORWARD -o virbr0 -m conntrack --ctstate NEW -j ACCEPT"
+      tags: install_libvirt
+
     - name: Enable libvirt service
       service:
         name: "{{ item }}"
