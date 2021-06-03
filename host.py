@@ -4,7 +4,7 @@ import os
 
 class HOST(object):
 
-    def __init__(self, ip, user, password, role=None):
+    def __init__(self, ip, user, password, subnet="192.168.122.0/24", role=None):
         self.ip = ip
         self.user = user
         self.password = password
@@ -13,6 +13,7 @@ class HOST(object):
         self.memory = None
         self.disk = None
         self.os_type = None
+        self.subnet = subnet
         self.ansible_inventory = "{} ansible_ssh_user={} ansible_ssh_pass={}".format(ip, user, password)
         self.executor = AnsibleTaskExecutor()
         self.proxy = os.getenv('https_proxy')
@@ -20,7 +21,9 @@ class HOST(object):
     def install(self):
         result_code, callback = self.executor.execute('install-host.yml', self.ansible_inventory,
                                                       extra_vars={"role": self.role,
-                                                                  "proxy_env": {'https_proxy': self.proxy}})
+                                                                  "proxy_env": {'https_proxy': self.proxy},
+                                                                  "subnet": self.subnet
+                                                                  })
         if result_code:
             raise Exception(callback.get_all_result())
 

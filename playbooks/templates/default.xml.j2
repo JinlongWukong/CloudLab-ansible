@@ -1,0 +1,14 @@
+<network>
+  <name>default</name>
+  <bridge name="virbr0"/>
+  <forward mode='nat'>
+    <nat>
+      <port start='30000' end='65535'/>
+    </nat>
+  </forward>
+  <ip address="{{ subnet | ipaddr('1') | ipaddr('address') }}" netmask="{{ subnet | ipaddr('netmask') }}">
+    <dhcp>
+      <range start="{{ subnet | ipaddr('2') | ipaddr('address') }}" end="{{ subnet | ipaddr('-2')|ipaddr('address')}}"/>
+    </dhcp>
+  </ip>
+</network>

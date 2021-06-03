@@ -116,14 +116,14 @@ def host_action():
     payload = request.get_json()
     logging.debug(payload)
 
-    field = {'Ip', 'User', 'Pass', 'Role', 'Action'}
+    field = {'Ip', 'User', 'Pass', 'Role', 'Action', 'Subnet'}
     if field - set(payload.keys()):
         error_msg = "Input json missing some field! " + "It must include " + str(field)
         logging.error(error_msg)
         return jsonify({"error": error_msg}), 400
     else:
         try:
-            host = HOST(payload['Ip'], payload['User'], payload['Pass'], payload['Role'])
+            host = HOST(payload['Ip'], payload['User'], payload['Pass'], payload['Subnet'], payload['Role'])
             if payload['Action'] == 'install':
                 logging.info("HOST installation is started")
                 data['cpu'], data['memory'], data['disk'], data['type'] = host.install()

@@ -8,6 +8,7 @@
     selinux_state: permissive
     vol_pool_name: images
     vol_pool_path: /var/lib/libvirt/images
+    subnet: "192.168.122.0/24"
   environment: "{{ proxy_env | default(omit)}}"
   tasks:
     - name: Check selinux existence
@@ -53,6 +54,12 @@
           ExecStartPost=/bin/sh -c "until virsh connect; do echo 'wait...';sleep 1; done"
           ExecStartPost=/bin/sh -c "iptables -D FORWARD -o virbr0 -m conntrack --ctstate NEW -j ACCEPT || true"
           ExecStartPost=/bin/sh -c "iptables -I FORWARD -o virbr0 -m conntrack --ctstate NEW -j ACCEPT"
+      tags: install_libvirt
+
+    - name: Override default network.xml
+      template:
+        src: default.xml.j2
+        dest: /etc/libvirt/qemu/networks/default.xml
       tags: install_libvirt
 
     - name: Enable libvirt service
