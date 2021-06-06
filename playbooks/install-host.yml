@@ -40,15 +40,36 @@
       when: firewalld_check.rc == 0
       tags: firewalld
 
+    - name: apt update
+      apt:
+        update_cache: true
+      tags: install_libvirt
+      when: ansible_os_family == "Debian"
+
     - name: Install libvirt and dependencies
-      yum:
+      package:
         name: "{{ libvirt.dependencies[ansible_os_family|lower] }}"
         state: present
       tags: install_libvirt
 
+    - name: Destroy default network
+      command: virsh net-destroy default
+      tags: install_libvirt
+      when: ansible_os_family == "Debian"
+
+    - name: Stop libvirt service
+      service:
+        name: "{{ item }}"
+        enabled: yes
+        state: stopped
+      with_items:
+        - libvirtd
+      tags: install_libvirt
+      when: ansible_os_family == "Debian"
+
     - name: Add post action for libvirtd service to insert iptables rule
       blockinfile:
-        dest: /usr/lib/systemd/system/libvirtd.service
+        dest: /lib/systemd/system/libvirtd.service
         insertafter: "^ExecStart="
         block: |
           ExecStartPost=/bin/sh -c "until virsh connect; do echo 'wait...';sleep 1; done"
@@ -62,11 +83,12 @@
         dest: /etc/libvirt/qemu/networks/default.xml
       tags: install_libvirt
 
-    - name: Enable libvirt service
+    - name: Start libvirt service
       service:
         name: "{{ item }}"
         enabled: yes
-        state: started
+        state: restarted
+        daemon_reload: yes
       with_items:
         - libvirtd
       tags: install_libvirt
@@ -138,14 +160,6 @@
         name: libvirtd
         state: restarted
       tags: download_image
-
-    - name: Accept all forward to virbr0
-      iptables:
-        chain: FORWARD
-        out_interface: virbr0
-        action: insert
-        jump: ACCEPT
-      tags: iptables
 
     - name: Print total memory size
       debug:
