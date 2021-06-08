@@ -1,0 +1,55 @@
+---
+- name: Configure host route for multi nodes communication
+  hosts: all
+  gather_facts: yes
+  vars_files:
+  vars:
+    routes:
+      []
+      #- { subnet: 192.168.10.0/24, via: 10.124.44.169 }
+
+  tasks:
+    - set_fact:
+        interface: |-
+          {% for item in ansible_interfaces -%}
+               {% if ansible_facts[item].ipv4 is defined -%}
+                  {% if (ansible_facts[item].ipv4.address == ansible_ssh_host) -%}
+                     {{ item -}}
+                  {% endif -%}
+               {% endif -%}
+          {% endfor -%}
+      tags: route
+      when: interface is not defined
+
+    - name: Debug print interface name
+      debug:
+        msg: "{{ interface }}"
+      tags: route
+
+    - name: Generate route file
+      template:
+        src: route-interface.j2
+        dest: /etc/sysconfig/network-scripts/route-{{ interface }}
+      register: route_file
+      tags: route
+      when: ansible_os_family == "RedHat"
+
+    - name: Restart network
+      service:
+        name: network
+        state: restarted
+      tags: route
+      when: ansible_os_family == "RedHat" and route_file.changed
+
+    - name: Generate netplan route file
+      template:
+        src: netplan-route.yaml.j2
+        dest: /etc/netplan/routes.yaml
+      tags: route
+      register: route_file
+      when: ansible_os_family == "Debian"
+
+    - name: Apply netplan
+      command: netplan apply
+      tags: route
+      when: ansible_os_family == "Debian" and route_file.changed

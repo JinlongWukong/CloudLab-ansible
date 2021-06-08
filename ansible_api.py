@@ -3,7 +3,7 @@
 import logging
 from flask import Flask, jsonify, request
 from vm import VM
-from host import HOST
+from host import HOST, MultiHOST
 
 app = Flask(__name__)
 
@@ -24,8 +24,6 @@ curl -i -d '{
     "vmVcpus": 2
 }' -H "Content-Type: application/json" -X POST http://localhost:9134/vm
 '''
-
-
 @app.route('/vm', methods=['POST'])
 def vm_action():
     payload = request.get_json()
@@ -105,11 +103,10 @@ curl -i -d '{
     "Pass": "xxxxxx",
     "User": "root",
     "Role": "compute",
-    "Action": "install"
+    "Action": "install",
+    "Subnet": "192.168.122.0/24"
 }' -H "Content-Type: application/json" -X POST http://localhost:9134/host
 '''
-
-
 @app.route('/host', methods=['POST'])
 def host_action():
     data = {}
@@ -128,7 +125,46 @@ def host_action():
                 logging.info("HOST installation is started")
                 data['cpu'], data['memory'], data['disk'], data['type'] = host.install()
                 logging.info("HOST installation is done")
+            elif payload['Action'] == 'route':
+                logging.info("HOST route update is started")
+                host.static_routes(payload['Routes'])
+                logging.info("HOST route update is done")
+            else:
+                pass
+        except Exception as e:
+            logging.error(str(e))
+            return jsonify({"error": str(e)}), 500
 
+    return jsonify(data), 200
+
+
+''' example payload
+curl -i -d '{
+    "Hosts": [["1.1.1.1", "root", "pass"],["2.2.2.2","root","pass"]],
+    "Action": "route",
+    "Routes": [{"subnet": "192.168.40.0/24", "via": "192.168.122.10"}]
+}' -H "Content-Type: application/json" -X POST http://localhost:9134/hosts
+'''
+@app.route('/hosts', methods=['POST'])
+def hosts_action():
+    data = {}
+    payload = request.get_json()
+    logging.debug(payload)
+
+    field = {'Hosts', 'Action'}
+    if field - set(payload.keys()):
+        error_msg = "Input json missing some field! " + "It must include " + str(field)
+        logging.error(error_msg)
+        return jsonify({"error": error_msg}), 400
+    else:
+        try:
+            hosts = MultiHOST(payload['Hosts'])
+            if payload['Action'] == 'route':
+                logging.info("HOSTs route update is started")
+                hosts.static_routes(payload['Routes'])
+                logging.info("HOSTs route update is done")
+            else:
+                pass
         except Exception as e:
             logging.error(str(e))
             return jsonify({"error": str(e)}), 500
@@ -176,8 +212,6 @@ curl -i -d'{
     ]
 }' -H "Content-Type: application/json" -X POST http://localhost:9134/host/dnat
 '''
-
-
 @app.route('/host/dnat', methods=['POST'])
 def port_dnat():
     payload = request.get_json()

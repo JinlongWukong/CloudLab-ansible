@@ -41,6 +41,12 @@ class HOST(object):
 
         return self.cpu, self.memory, self.disk, self.os_type
 
+    def static_routes(self, routes):
+        result_code, callback = self.executor.execute('route.yml', self.ansible_inventory,
+                                                      extra_vars={"routes": routes})
+        if result_code:
+            raise Exception(callback.get_all_result())
+
     def get_info(self):
         """
             Get host cpu/mem/disk usage
@@ -74,3 +80,13 @@ class HOST(object):
                                                       extra_vars={"rules": rules})
         if result_code:
             raise Exception(callback.get_all_result())
+
+
+class MultiHOST(HOST):
+    def __init__(self, hosts):
+        self.ansible_inventory = ""
+        for h in hosts:
+            if len(h) != 3:
+                continue
+            self.ansible_inventory += "{} ansible_ssh_user={} ansible_ssh_pass={}".format(h[0], h[1], h[2]) + "\n"
+        self.executor = AnsibleTaskExecutor()
