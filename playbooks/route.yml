@@ -27,7 +27,7 @@
       tags: route
 
     - name: Fetch default subnet
-      command: "ip route list | grep virbr0 | awk '{print $1}'"
+      shell: "ip route list | grep virbr0 | awk '{print $1}'"
       register: self_subnet
       tags: route
 
