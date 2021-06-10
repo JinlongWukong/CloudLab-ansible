@@ -70,6 +70,7 @@
     - name: Add post action for libvirtd service to insert iptables rule
       blockinfile:
         dest: /lib/systemd/system/libvirtd.service
+        marker: '# {mark} this is configured by ansible iptables'
         insertafter: "^ExecStart="
         block: |
           ExecStartPost=/bin/sh -c "until virsh connect; do echo 'wait...';sleep 1; done"
