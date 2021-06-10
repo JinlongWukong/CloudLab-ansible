@@ -40,6 +40,15 @@
       when: firewalld_check.rc == 0
       tags: firewalld
 
+    - name: Enable ipv4.ip_forward
+      sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        sysctl_set: yes
+        state: present
+        reload: yes
+      tags: forward
+
     - name: apt update
       apt:
         update_cache: true
