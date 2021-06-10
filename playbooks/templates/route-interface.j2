@@ -1,5 +1,5 @@
 {% for r in routes %}
 {% if r.subnet != self_subnet.stdout %}
 {{ r.subnet }} via {{ r.via }}
-{% endif $}
+{% endif %}
 {% endfor %}
