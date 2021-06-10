@@ -26,6 +26,11 @@
         msg: "{{ interface }}"
       tags: route
 
+    - name: Fetch default subnet
+      command: "ip route list | grep virbr0 | awk '{print $1}'"
+      register: self_subnet
+      tags: route
+
     - name: Generate route file
       template:
         src: route-interface.j2

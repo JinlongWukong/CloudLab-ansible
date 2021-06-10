@@ -2,11 +2,13 @@ network:
   ethernets:
     {{ interface }}:
       routes:
-        {% if routes |length > 0 -%}
-        {% for r in routes -%}
+{% if routes |length > 0 %}
+{% for r in routes -%}
+{% if r.subnet != self_subnet.stdout %}
         - to: {{ r.subnet }}
           via: {{ r.via }}
-        {% endfor -%}
-        {% else -%}
+{% endif %}
+{% endfor %}
+{% else %}
         []
-        {% endif %}
+{% endif %}
