@@ -26,4 +26,4 @@ COPY . /app
 
 EXPOSE 9134
 # run entrypoint.sh
-ENTRYPOINT ["gunicorn", "--timeout", "10800", "--bind", "0.0.0.0:9134", "ansible_api:app"]
+ENTRYPOINT ["gunicorn", "-w", "10", "-t", "10800", "-b", "0.0.0.0:9134", "ansible_api:app"]
