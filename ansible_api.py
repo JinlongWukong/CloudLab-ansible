@@ -89,7 +89,9 @@ def vm_reader():
     else:
         try:
             vm = VM(payload['hostIp'], payload['hostUser'], payload['hostPass'], payload['vmName'])
+            logging.info("VM info fetching")
             data['name'], data['status'], data['address'], data['vncPort'] = vm.get_info()
+            logging.info("VM info fetched")
         except Exception as e:
             logging.error(str(e))
             return jsonify({"error": str(e)}), 500
@@ -187,7 +189,9 @@ def host_reader():
     else:
         try:
             host = HOST(payload['Ip'], payload['User'], payload['Pass'])
+            logging.info("Host info fetching")
             memory_avail, cpu_load, data['disk_usage'] = host.get_info()
+            logging.info("Host info fetched")
             data['cpu_load'] = float(cpu_load)
             data['memory_avail'] = int(memory_avail)
         except Exception as e:
@@ -225,7 +229,9 @@ def port_dnat():
     else:
         try:
             host = HOST(payload['Ip'], payload['User'], payload['Pass'])
+            logging.info("Setup dnat rule")
             host.port_dnat(payload['rules'])
+            logging.info("Setup dnat rule done")
         except Exception as e:
             logging.error(str(e))
             return jsonify({"error": str(e)}), 500
