@@ -62,7 +62,7 @@
       tags: install_libvirt
 
     - name: Destroy default network
-      command: virsh net-destroy default
+      shell: until virsh connect; do echo 'wait...';sleep 1; done && virsh net-destroy default
       tags: install_libvirt
       when: ansible_os_family == "Debian"
 
