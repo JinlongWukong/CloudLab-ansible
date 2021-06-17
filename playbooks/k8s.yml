@@ -1,0 +1,99 @@
+---
+- name: K8S installation
+  hosts: all
+  gather_facts: no
+  vars_files:
+    - vars/all.yml
+  vars:
+    yum_repo_dir: /etc/yum.repos.d
+    docker_packages:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    cluster_name: mycluster
+    control_plane_number: 1
+    worker_number: 3
+  environment: "{{ proxy_env | default(omit)}}"
+  tasks:
+    - name: Wait 600 seconds for target connection to become reachable
+      wait_for_connection:
+        sleep: 3
+        timeout: 600
+      tags: always
+
+    - name: Configure docker repository on RedHat/CentOS
+      template:
+        src: "docker-ce.repo.j2"
+        dest: "{{ yum_repo_dir }}/docker-ce.repo"
+      tags: docker
+
+    - name: Ensure docker packages are installed on RedHat/CentOS
+      yum:
+        name: "{{ docker_packages }}"
+        state: present
+        disablerepo: "{{ disablerepo | default('') }}"
+        enablerepo: docker-ce
+      register: docker_task_result
+      until: docker_task_result is succeeded
+      retries: 4
+      tags: docker
+
+    - name: Start docker daemon
+      service:
+        name: docker
+        state: started
+        enabled: yes
+      tags: docker
+
+    - name: Configure docker daemon.json
+      template:
+        src: "daemon.json.j2"
+        dest: "/etc/docker/daemon.json"
+      register: daemon
+      when: docker_private_registries is defined
+      tags: docker
+
+    - name: Restart docker daemon
+      service:
+        name: docker
+        state: restarted
+        enabled: yes
+      when: daemon.changed
+      tags: docker
+
+    - name: Install kind
+      get_url:
+        url: "https://kind.sigs.k8s.io/dl/{{ kind.kind_verison }}/kind-linux-amd64"
+        dest: /bin/kind
+        mode: '0755'
+      tags: kind
+
+    - name: Install kubectl
+      get_url:
+        url: "https://dl.k8s.io/release/{{ kind.kubectl_version }}/bin/linux/amd64/kubectl"
+        dest: /bin/kubectl
+        mode: '0755'
+      tags: kubectl
+
+    - name: Generate kind cluster config file
+      template:
+        src: "kind-config.yaml.j2"
+        dest: /tmp/kind-config.yaml
+      tags: cluster
+
+    - name: Check cluster exitence
+      command: kind get clusters
+      register: exitence
+      tags: cluster
+
+    - name: Create a Cluster
+      command: |
+        kind create cluster --name {{ cluster_name }} --config /tmp/kind-config.yaml
+        --image {{ docker_private_registries_kind_prefix | default('kindest/node')}}:{{ kind.k8s_version }}
+      when: not exitence.stdout
+      tags: cluster
+
+    - name: Setup kubectl context
+      command: kubectl cluster-info --context kind-{{ cluster_name }}
+      when: not exitence.stdout
+      tags: cluster

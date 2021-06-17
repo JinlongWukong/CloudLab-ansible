@@ -4,6 +4,7 @@ import logging
 from flask import Flask, jsonify, request
 from vm import VM
 from host import HOST, MultiHOST
+from k8s import K8S
 
 app = Flask(__name__)
 
@@ -237,6 +238,43 @@ def port_dnat():
             return jsonify({"error": str(e)}), 500
 
     return jsonify(""), 202
+
+
+''' example payload
+curl -i -d '{
+    "Ip": "127.0.0.1",
+    "Pass": "xxxxxx",
+    "User": "root",
+    "Controller": 1,
+    "Worker": 3
+}' -H "Content-Type: application/json" -X POST http://localhost:9134/k8s
+'''
+@app.route('/k8s', methods=['POST'])
+def k8s():
+    data = {}
+    payload = request.get_json()
+    logging.debug(payload)
+
+    field = {'Ip', 'User', 'Pass', 'Controller', 'Worker'}
+    if field - set(payload.keys()):
+        error_msg = "Input json missing some field! " + "It must include " + str(field)
+        logging.error(error_msg)
+        return jsonify({"error": error_msg}), 400
+    else:
+        if not isinstance(payload['Controller'], int) or not isinstance(payload['Worker'], int):
+            error_msg = "Controller and Worker must be number"
+            return jsonify({"error": error_msg}), 400
+
+        try:
+            cluster = K8S(payload['Ip'], payload['User'], payload['Pass'], payload['Controller'], payload['Worker'])
+            logging.info("K8S cluster installation is started")
+            cluster.install()
+            logging.info("K8S cluster installation is done")
+        except Exception as e:
+            logging.error(str(e))
+            return jsonify({"error": str(e)}), 500
+
+    return jsonify(data), 200
 
 
 if __name__ == "__main__":
