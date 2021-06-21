@@ -25,3 +25,12 @@ libvirt:
 
 virt_utils:
   release: https://github.com/JinlongWukong/virt-utils/archive/refs/tags/0.0.3.tar.gz
+
+
+#docker_private_registries: "xxxxxxx"
+#docker_private_registries_kind_prefix: "{{ docker_private_registries }}/demo/kindest/node"
+
+kind:
+  kind_verison: "v0.11.0"
+  k8s_version: "v1.21.1"
+  kubectl_version: "v1.21.0"
