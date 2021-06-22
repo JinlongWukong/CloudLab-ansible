@@ -61,8 +61,16 @@
         state: present
       tags: install_libvirt
 
+    - name: Wait libvirt ready
+      command: virsh connect
+      register: libvirt_ready
+      retries: 30
+      delay: 2
+      until: libvirt_ready.rc == 0
+      when: ansible_os_family == "Debian"
+
     - name: Destroy default network
-      shell: until virsh connect; do echo 'wait...';sleep 1; done && virsh net-destroy default
+      shell: virsh net-destroy default
       tags: install_libvirt
       when: ansible_os_family == "Debian"
 
