@@ -29,6 +29,8 @@ virt_utils:
 
 #docker_private_registries: "xxxxxxx"
 #docker_private_registries_kind_prefix: "{{ docker_private_registries }}/demo/kindest/node"
+#docker_insecure_registries:
+#  - "{{ docker_private_registries }}"
 
 kind:
   kind_verison: "v0.11.0"
