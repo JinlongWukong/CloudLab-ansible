@@ -4,7 +4,7 @@ import os
 
 class HOST(object):
 
-    def __init__(self, ip, user, password, subnet="192.168.122.0/24", role=None):
+    def __init__(self, ip, user, password, subnet, role=None):
         self.ip = ip
         self.user = user
         self.password = password
@@ -19,11 +19,21 @@ class HOST(object):
         self.proxy = os.getenv('https_proxy')
 
     def install(self):
-        result_code, callback = self.executor.execute('install-host.yml', self.ansible_inventory,
-                                                      extra_vars={"role": self.role,
-                                                                  "proxy_env": {'https_proxy': self.proxy},
-                                                                  "subnet": self.subnet
-                                                                  })
+        if self.role == "compute":
+            result_code, callback = self.executor.execute('install-host.yml', self.ansible_inventory,
+                                                          extra_vars={
+                                                              "proxy_env": {'https_proxy': self.proxy},
+                                                              "subnet": self.subnet
+                                                          })
+        elif self.role == "container":
+            result_code, callback = self.executor.execute('install-container-host.yml', self.ansible_inventory,
+                                                          extra_vars={
+                                                              'https_proxy': self.proxy,
+                                                              "subnet": self.subnet
+                                                          })
+        else:
+            raise Exception("host role not supported")
+
         if result_code:
             raise Exception(callback.get_all_result())
 
