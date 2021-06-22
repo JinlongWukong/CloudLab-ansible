@@ -14,8 +14,6 @@ docker_repo_info:
 
 docker_cgroup_driver: systemd
 
-docker_dns_servers_strict: true
-
 docker_container_storage_setup: false
 
 yum_repo_dir: /etc/yum.repos.d
@@ -32,11 +30,9 @@ docker_ubuntu_repo_gpgkey: 'https://download.docker.com/linux/ubuntu/gpg'
 # Debian docker-ce repo
 docker_debian_repo_base_url: "https://download.docker.com/linux/debian"
 docker_debian_repo_gpgkey: 'https://download.docker.com/linux/debian/gpg'
+
 # docker bin dir
 docker_bin_dir: "/usr/bin"
-
-# flag to enable/disable docker cleanup
-docker_orphan_clean_up: false
 
 ## A list of plugins to install using 'docker plugin install --grant-all-permissions'
 ## Empty by default so no plugins will be installed.
@@ -61,13 +57,6 @@ docker_daemon_graph: "/var/lib/docker"
 # Docker log options
 # Rotate container stderr/stdout logs at 50m and keep last 5
 docker_log_opts: "--log-opt max-size=50m --log-opt max-file=5"
-
-## If non-empty will override default system MounFlags value.
-## This option takes a mount propagation flag: shared, slave
-## or private, which control whether mounts in the file system
-## namespace set up for docker will receive or propagate mounts
-## and unmounts. Leave empty for system default
-# docker_mount_flags:
 
 _host_architecture_groups:
   x86_64: amd64

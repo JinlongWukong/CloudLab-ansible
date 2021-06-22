@@ -9,10 +9,6 @@ BindsTo=containerd.service
 After=network.target docker.socket containerd.service
 BindsTo=containerd.service
 Wants=docker.socket
-{% elif ansible_os_family == "Suse" %}
-After=network.target lvm2-monitor.service SuSEfirewall2.service
-# After=network.target containerd.service
-# BindsTo=containerd.service
 {% endif %}
 
 [Service]
@@ -25,9 +21,6 @@ ExecReload=/bin/kill -s HUP $MAINPID
 Delegate=yes
 KillMode=process
 ExecStart={{ docker_bin_dir }}/dockerd \
-{% if ansible_os_family == "Suse" %}
-          --add-runtime oci=/usr/sbin/docker-runc \
-{% endif %}
           $DOCKER_OPTS \
           $DOCKER_STORAGE_OPTIONS \
           $DOCKER_DNS_OPTIONS

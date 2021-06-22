@@ -7,4 +7,6 @@ keepcache={{ docker_rpm_keepcache | default('1') }}
 gpgkey={{ docker_rh_repo_gpgkey }}
 {% if http_proxy is defined %}
 proxy={{ http_proxy }}
+{% elif https_proxy is defined %}
+proxy={{ https_proxy }}
 {% endif %}

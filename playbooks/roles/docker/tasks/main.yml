@@ -111,7 +111,7 @@
   rescue:
     - debug:
         msg: "Docker start failed. Try to remove our config"
-    - name: remove kubespray generated config
+    - name: remove generated config
       file:
         path: "{{ item }}"
         state: absent

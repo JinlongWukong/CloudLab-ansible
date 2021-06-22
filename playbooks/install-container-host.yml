@@ -1,0 +1,75 @@
+---
+- name: Install container host
+  hosts: all
+  gather_facts: yes
+  vars_files:
+    - vars/all.yml
+  vars:
+  tasks:
+    - name: Check selinux existence
+      shell: which getenforce
+      register: selinux_check
+      failed_when: false
+      changed_when: false
+      tags: selinux
+
+    - name: Set selinux policy
+      selinux:
+        policy: targeted
+        state: permissive
+      when: selinux_check.rc == 0
+      tags: selinux
+
+    - name: Check firewalld existence
+      shell: which firewall-cmd
+      register: firewalld_check
+      failed_when: false
+      changed_when: false
+      tags: firewalld
+
+    - name: Disable firewalld
+      service:
+        name: firewalld
+        state: stopped
+        enabled: no
+      when: firewalld_check.rc == 0
+      tags: firewalld
+
+    - name: Enable ipv4.ip_forward
+      sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        sysctl_set: yes
+        state: present
+        reload: yes
+      tags: forward
+
+    - name: Install docker-ce
+      import_role:
+        name: docker
+      tags: docker
+
+    - name: Print total memory size
+      debug:
+        msg: "{{ ansible_memtotal_mb }}"
+      tags: info, memory
+
+    - name: Print total cpu count
+      debug:
+        msg: "{{ ansible_processor_count }}"
+      tags: info, cpu
+
+    - name: Print os type
+      debug:
+        msg: "{{ ansible_distribution }}"
+      tags: info, type
+
+    - name: Get virt vol disk usage
+      shell: df -m --output=size /var/lib/docker/ | tail -1
+      register: disk_usage
+      tags: info, disk
+
+    - name: Print virt vol disk usage
+      debug:
+        msg: "{{ disk_usage.stdout | trim | int}}"
+      tags: info, disk
