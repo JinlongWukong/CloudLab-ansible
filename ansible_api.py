@@ -175,21 +175,21 @@ def hosts_action():
     return jsonify(data), 200
 
 
-# example: curl -X GET http://localhost:9134/host?Ip=127.0.0.1\&Pass=xxxxx\&User=root
+# example: curl -X GET http://localhost:9134/host?Ip=127.0.0.1\&Pass=xxxxx\&User=root\&Role=compute
 @app.route('/host', methods=['GET'])
 def host_reader():
     data = {}
     payload = request.args
     logging.debug(payload)
 
-    field = {'Ip', 'User', 'Pass'}
+    field = {'Ip', 'User', 'Pass', 'Role'}
     if field - set(payload.keys()):
         error_msg = "Input json missing some field! " + "It must include " + str(field)
         logging.error(error_msg)
         return jsonify({"error": error_msg}), 400
     else:
         try:
-            host = HOST(payload['Ip'], payload['User'], payload['Pass'])
+            host = HOST(payload['Ip'], payload['User'], payload['Pass'], role=payload['Role'])
             logging.info("Host info fetching")
             memory_avail, cpu_load, data['disk_usage'] = host.get_info()
             logging.info("Host info fetched")

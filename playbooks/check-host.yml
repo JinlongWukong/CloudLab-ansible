@@ -2,6 +2,8 @@
 - name: Check host usage
   hosts: all
   gather_facts: no
+  vars:
+    role: compute
   tasks:
     - name: Get memory avail
       shell: free -m | grep -i Mem | awk '{print $NF}'
@@ -23,8 +25,20 @@
         msg: "{{ cpu_load.stdout | trim }}"
       tags: cpu
 
+    - name: Set disk path based on role
+      set_fact:
+        disk_path: >-
+          {% if role == 'compute' %}
+          /var/lib/libvirt/images/
+          {% elif role == 'container' %}
+          /var/lib/docker/
+          {% else %}
+          /
+          {% endif %}
+      tags: disk
+
     - name: Get virt vol disk usage
-      shell: df -m --output=ipcent /var/lib/libvirt/images/  | tail -1
+      shell: df -m --output=ipcent {{ disk_path }} | tail -1
       register: disk_usage
       tags: disk
 

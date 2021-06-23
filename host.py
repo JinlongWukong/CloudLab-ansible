@@ -4,7 +4,7 @@ import os
 
 class HOST(object):
 
-    def __init__(self, ip, user, password, subnet, role=None):
+    def __init__(self, ip, user, password, subnet=None, role=None):
         self.ip = ip
         self.user = user
         self.password = password
@@ -63,7 +63,8 @@ class HOST(object):
         :return:
             cpu, mem, disk
         """
-        result_code, callback = self.executor.execute('check-host.yml', self.ansible_inventory)
+        result_code, callback = self.executor.execute('check-host.yml', self.ansible_inventory,
+                                                      extra_vars={"role": self.role})
 
         if result_code:
             raise Exception(callback.get_all_result())
