@@ -2,6 +2,8 @@
 
 import logging
 from flask import Flask, jsonify, request
+
+from container import ContainerFactory
 from vm import VM
 from host import HOST, MultiHOST
 from k8s import K8S
@@ -270,6 +272,126 @@ def k8s():
             logging.info("K8S cluster installation is started")
             cluster.install()
             logging.info("K8S cluster installation is done")
+        except Exception as e:
+            logging.error(str(e))
+            return jsonify({"error": str(e)}), 500
+
+    return jsonify(data), 200
+
+
+''' example payload
+curl -i -d '{
+    "Ip": "127.0.0.1",
+    "Pass": "xxxxxx",
+    "User": "root",
+    "Name": "test-1",
+    "Cpu": 1,
+    "Memory": "1g",
+    "Software": "jenkins",
+    "Version": "latest"
+}' -H "Content-Type: application/json" -X POST http://localhost:9134/container
+'''
+@app.route('/container', methods=['POST'])
+def create_container():
+    data = {}
+    payload = request.get_json()
+    logging.debug(payload)
+
+    field = {'Ip', 'User', 'Pass', 'Name', 'Cpu', 'Memory', 'Software', 'Version'}
+    if field - set(payload.keys()):
+        error_msg = "Input json missing some field! " + "It must include " + str(field)
+        logging.error(error_msg)
+        return jsonify({"error": error_msg}), 400
+    else:
+        try:
+            container_instance = ContainerFactory.new_container(payload['Ip'], payload['User'], payload['Pass'],
+                                                                payload['Name'],
+                                                                payload['Cpu'], payload['Memory'], payload['Software'],
+                                                                payload['Version'])
+            logging.info("container {} start to create".format(payload['Name']))
+            data = container_instance.create()
+            logging.info("container {} is created".format(payload['Name']))
+        except Exception as e:
+            logging.error(str(e))
+            return jsonify({"error": str(e)}), 500
+
+    return jsonify(data), 200
+
+
+''' example payload
+curl -i -d '{
+    "Ip": "127.0.0.1",
+    "Pass": "xxxxxx",
+    "User": "root",
+    "Name": "test-1",
+    "Software": "jenkins"
+}' -H "Content-Type: application/json" -X POST http://localhost:9134/container
+'''
+@app.route('/container', methods=['GET'])
+def get_container_info():
+    data = {}
+    payload = request.get_json()
+    logging.debug(payload)
+
+    field = {'Ip', 'User', 'Pass', 'Name', 'Software'}
+    if field - set(payload.keys()):
+        error_msg = "Input json missing some field! " + "It must include " + str(field)
+        logging.error(error_msg)
+        return jsonify({"error": error_msg}), 400
+    else:
+        try:
+            container_instance = ContainerFactory.new_container(payload['Ip'], payload['User'], payload['Pass'],
+                                                                payload['Name'],
+                                                                None, None, payload['Software'], None)
+            logging.info("get container {} status ...".format(payload['Name']))
+            data = container_instance.get()
+            logging.info("get container {} status done".format(payload['Name']))
+        except Exception as e:
+            logging.error(str(e))
+            return jsonify({"error": str(e)}), 500
+
+    return jsonify(data), 200
+
+
+''' example payload
+curl -i -d '{
+    "Ip": "127.0.0.1",
+    "Pass": "xxxxxx",
+    "User": "root",
+    "Name": "test-1",
+    "Software": "jenkins",
+    "Action": "start",
+}' -H "Content-Type: application/json" -X POST http://localhost:9134/container/action
+'''
+@app.route('/container/action', methods=['POST'])
+def container_action():
+    data = {}
+    payload = request.get_json()
+    logging.debug(payload)
+
+    field = {'Ip', 'User', 'Pass', 'Name', 'Software', 'Action'}
+    if field - set(payload.keys()):
+        error_msg = "Input json missing some fields! " + "It must include " + str(field)
+        logging.error(error_msg)
+        return jsonify({"error": error_msg}), 400
+    else:
+        try:
+            container_instance = ContainerFactory.new_container(payload['Ip'], payload['User'], payload['Pass'],
+                                                                payload['Name'], None, None, payload['Software'], None)
+
+            logging.info("container {} action {} ...".format(payload['Name'], payload['Action']))
+
+            if payload['Action'] == 'start':
+                data = container_instance.start()
+            elif payload['Action'] == 'stop':
+                container_instance.stop()
+            elif payload['Action'] == 'delete':
+                container_instance.delete()
+            else:
+                return jsonify({"error": "action not support"}), 400
+
+            logging.info("container {} action {} done".format(payload['Name'], payload['Action']))
+
         except Exception as e:
             logging.error(str(e))
             return jsonify({"error": str(e)}), 500

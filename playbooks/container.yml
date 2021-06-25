@@ -1,0 +1,98 @@
+---
+- name: Container lifecycle management
+  hosts: all
+  gather_facts: no
+  vars_files:
+    - vars/all.yml
+  vars:
+    #container_type: jenkins
+    #container_name: jenkins-1
+    #memory_limit: 1g
+    #cpu_limit: 2
+    #tag: latest
+  tasks:
+    - name: Set container image name
+      set_fact:
+        container_image: |-
+          {% if docker_private_registries_jenkins_prefix is defined %}
+          {{ docker_private_registries_jenkins_prefix }}:{{ tag }}
+          {%- else %}
+          {{ container[container_type].image }}:{{ tag }}
+          {%- endif %}
+      when: container_type == 'jenkins'
+      tags: create
+
+    - name: Create container
+      shell: >-
+        if docker ps | grep {{ container_name }};
+        then echo 'container existed';
+        else
+        docker run
+        --name {{ container_name }}
+        --detach
+        --privileged
+        --memory={{ memory_limit }}
+        --cpus={{ cpu_limit }}
+        -P
+        {{ container_image }}
+        ;fi
+      register: container
+      tags: create
+
+    - name: Start container
+      shell: >-
+        if docker ps -a| grep {{ container_name }};then
+        docker start {{ container_name }}
+        ;fi
+      tags: start
+
+    - name: Stop container
+      shell: >-
+        if docker ps | grep {{ container_name }};then
+        docker stop {{ container_name }}
+        ;fi
+      tags: stop, delete
+
+    - name: Remove container
+      shell: >-
+        if docker ps -a | grep {{ container_name }};then
+        docker rm {{ container_name }}
+        ;fi
+      tags: delete
+
+    - name: Get container status
+      block:
+        - name: Check container liveness
+          shell: >-
+            if docker ps --format '{''{.Names}''}' | grep {{ container_name }};then
+            echo 'container is up';
+            elif docker ps -a --format '{''{.Names}''}' | grep {{ container_name }};then
+            echo 'container is down';
+            exit 1;
+            else
+            echo 'container is missing';
+            exit 1;
+            fi
+          failed_when: no
+          register: liveness
+          changed_when: "'container is up' in liveness.stdout"
+
+        - name: Get container ip address
+          shell: docker inspect --format '{''{ .NetworkSettings.IPAddress }''}' {{ container_name }}
+          register: address
+          when: liveness.changed
+
+        - name: Get container port mapping
+          shell: docker port {{ container_name }}
+          register: port_mapping
+          when: liveness.changed
+
+        - name: Get jenkins initialAdminPassword
+          command: docker exec {{ container_name }} cat /var/jenkins_home/secrets/initialAdminPassword
+          register: jenkins_passwd
+          retries: 60
+          delay: 2
+          until: jenkins_passwd.rc == 0
+          when: container_type == 'jenkins' and liveness.changed
+
+      tags: start, create, info
