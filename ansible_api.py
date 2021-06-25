@@ -383,6 +383,8 @@ def container_action():
 
             if payload['Action'] == 'start':
                 data = container_instance.start()
+            elif payload['Action'] == 'restart':
+                data = container_instance.restart()
             elif payload['Action'] == 'stop':
                 container_instance.stop()
             elif payload['Action'] == 'delete':

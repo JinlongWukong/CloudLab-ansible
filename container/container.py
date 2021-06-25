@@ -83,6 +83,32 @@ class Container(object):
             "port_mapping": self.port_mapping
         }
 
+    def restart(self):
+        """Restart container
+
+        return: container status(address, port_mapping), dict format
+        Raises: if ansible failed, raise error message
+        """
+        result_code, callback = self.executor.execute('container.yml', self.ansible_inventory,
+                                                      extra_vars={"container_name": self.name,
+                                                                  "container_type": self.container_type},
+                                                      tags=['restart'])
+        if result_code:
+            raise Exception(callback.get_all_result())
+
+        for event in callback.host_ok:
+            if event['task'] == "Get container ip address" and event['host'] == self.host_ip:
+                self.address = event['result']['stdout']
+            elif event['task'] == "Get container port mapping" and event['host'] == self.host_ip:
+                self.port_mapping = event['result']['stdout_lines']
+            else:
+                pass
+
+        return {
+            "address": self.address,
+            "port_mapping": self.port_mapping
+        }
+
     def stop(self):
         """Stop container
 

@@ -46,6 +46,13 @@
         ;fi
       tags: start
 
+    - name: Restart container
+      shell: >-
+        if docker ps -a| grep {{ container_name }};then
+        docker restart {{ container_name }}
+        ;fi
+      tags: restart
+
     - name: Stop container
       shell: >-
         if docker ps | grep {{ container_name }};then
@@ -95,4 +102,4 @@
           until: jenkins_passwd.rc == 0
           when: container_type == 'jenkins' and liveness.changed
 
-      tags: start, create, info
+      tags: start, restart, create, info
