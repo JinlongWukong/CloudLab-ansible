@@ -19,7 +19,7 @@ class Jenkins(Container):
         return {
             "address": self.address,
             "port_mapping": self.port_mapping,
-            "admin_password": self.initialAdminPassword
+            "additional_infor": dict({"admin_password": self.initialAdminPassword})
         }
 
     def get(self):
@@ -38,5 +38,5 @@ class Jenkins(Container):
         return {
             "address": self.address,
             "port_mapping": self.port_mapping,
-            "admin_password": self.initialAdminPassword
+            "additional_infor": dict({"admin_password": self.initialAdminPassword})
         }
