@@ -12,14 +12,14 @@ class Container(object):
         self.version = version
         self.address = None
         self.port_mapping = []
+        self.status = "unknown"
         self.ansible_inventory = "{} ansible_ssh_user={} ansible_ssh_pass={}".format(host_ip, host_user, host_pass)
         self.executor = AnsibleTaskExecutor()
 
     def _create(self):
         """
         Internal common create method, create container, parse address and port_mapping
-        :return:
-        ansible run result data
+        :return: ansible callback
         """
         result_code, callback = self.executor.execute('container.yml', self.ansible_inventory,
                                                       extra_vars={"container_type": self.container_type,
@@ -36,12 +36,8 @@ class Container(object):
             if event['task'] == "Create container" and event['host'] == self.host_ip:
                 if 'container existed' in event['result']['stdout']:
                     raise Exception("Container {} already existed".format(self.name))
-            elif event['task'] == "Get container ip address" and event['host'] == self.host_ip:
-                self.address = event['result']['stdout']
-            elif event['task'] == "Get container port mapping" and event['host'] == self.host_ip:
-                self.port_mapping = event['result']['stdout_lines']
             else:
-                pass
+                self.read_container_status(event)
 
         return callback
 
@@ -53,6 +49,7 @@ class Container(object):
         self._create(self)
 
         return {
+            "status": self.status,
             "address": self.address,
             "port_mapping": self.port_mapping
         }
@@ -71,16 +68,13 @@ class Container(object):
             raise Exception(callback.get_all_result())
 
         for event in callback.host_ok:
-            if event['task'] == "Get container ip address" and event['host'] == self.host_ip:
-                self.address = event['result']['stdout']
-            elif event['task'] == "Get container port mapping" and event['host'] == self.host_ip:
-                self.port_mapping = event['result']['stdout_lines']
-            else:
-                pass
+            self.read_container_status(event)
 
         return {
+            "status": self.status,
             "address": self.address,
-            "port_mapping": self.port_mapping
+            "port_mapping": self.port_mapping,
+            "additional_infor": {}
         }
 
     def restart(self):
@@ -97,16 +91,13 @@ class Container(object):
             raise Exception(callback.get_all_result())
 
         for event in callback.host_ok:
-            if event['task'] == "Get container ip address" and event['host'] == self.host_ip:
-                self.address = event['result']['stdout']
-            elif event['task'] == "Get container port mapping" and event['host'] == self.host_ip:
-                self.port_mapping = event['result']['stdout_lines']
-            else:
-                pass
+            self.read_container_status(event)
 
         return {
+            "status": self.status,
             "address": self.address,
-            "port_mapping": self.port_mapping
+            "port_mapping": self.port_mapping,
+            "additional_infor": {}
         }
 
     def stop(self):
@@ -135,37 +126,51 @@ class Container(object):
 
     def _get(self):
         """Internal common get container status information
-        :return:
-        ansible run result data
+
+        return: ansible callback
         """
         result_code, callback = self.executor.execute('container.yml', self.ansible_inventory,
                                                       extra_vars={"container_name": self.name,
                                                                   "container_type": self.container_type},
-                                                      tags=['info'])
+                                                      tags=['get'])
         if result_code:
             raise Exception(callback.get_all_result())
 
         for event in callback.host_ok:
-            if event['task'] == "Check container liveness" and event['host'] == self.host_ip:
-                if 'container is up' not in event['result']['stdout']:
-                    raise Exception(str(event['result']['stdout']))
-            elif event['task'] == "Get container ip address" and event['host'] == self.host_ip:
-                self.address = event['result']['stdout']
-            elif event['task'] == "Get container port mapping" and event['host'] == self.host_ip:
-                self.port_mapping = event['result']['stdout_lines']
-            else:
-                pass
+            self.read_container_status(event)
 
         return callback
 
     def get(self):
         """Get container status information
 
-         return: container status(address, port_mapping), dict format
-         """
-        self._get(self)
+        return: container status, address, port_mapping, format dict
+        """
+        self._get()
 
         return {
+            "status": self.status,
             "address": self.address,
-            "port_mapping": self.port_mapping
+            "port_mapping": self.port_mapping,
+            "additional_infor": {}
         }
+
+    def read_container_status(self, event):
+        """
+        This is a common method for reading container status information
+        """
+        if event['task'] == "Check container liveness" and event['host'] == self.host_ip:
+            if 'container is up' in event['result']['stdout']:
+                self.status = "running"
+            elif 'container is down' in event['result']['stdout']:
+                self.status = "stopped"
+            elif 'container is missing' in event['result']['stdout']:
+                self.status = "deleted"
+            else:
+                self.status = "unknown"
+        elif event['task'] == "Get container ip address" and event['host'] == self.host_ip:
+            self.address = event['result']['stdout']
+        elif event['task'] == "Get container port mapping" and event['host'] == self.host_ip:
+            self.port_mapping = event['result']['stdout_lines']
+        else:
+            pass

@@ -40,29 +40,21 @@
       tags: create
 
     - name: Start container
-      shell: >-
-        if docker ps -a| grep {{ container_name }};then
-        docker start {{ container_name }}
-        ;fi
+      shell: docker start {{ container_name }}
       tags: start
 
     - name: Restart container
-      shell: >-
-        if docker ps -a| grep {{ container_name }};then
-        docker restart {{ container_name }}
-        ;fi
+      shell: docker restart {{ container_name }}
       tags: restart
 
     - name: Stop container
-      shell: >-
-        if docker ps | grep {{ container_name }};then
-        docker stop {{ container_name }}
-        ;fi
-      tags: stop, delete
+      shell: docker stop {{ container_name }}
+      tags: stop
 
     - name: Remove container
       shell: >-
         if docker ps -a | grep {{ container_name }};then
+        docker stop {{ container_name }};
         docker rm {{ container_name }}
         ;fi
       tags: delete
@@ -102,4 +94,4 @@
           until: jenkins_passwd.rc == 0
           when: container_type == 'jenkins' and liveness.changed
 
-      tags: start, restart, create, info
+      tags: start, restart, create, get
