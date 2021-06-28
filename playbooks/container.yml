@@ -33,6 +33,17 @@
       when: container_type == 'mysql'
       tags: create
 
+    - name: Set container image name for postgres
+      set_fact:
+        container_image: |-
+          {% if docker_private_registries_postgres_prefix is defined %}
+          {{ docker_private_registries_postgres_prefix }}:{{ tag }}
+          {%- else %}
+          {{ container[container_type].image }}:{{ tag }}
+          {%- endif %}
+      when: container_type == 'postgres'
+      tags: create
+
     - name: Create container
       shell: >-
         if docker ps | grep {{ container_name }};
@@ -48,6 +59,37 @@
         {{ container_image }}
         ;fi
       register: container
+      when:
+        - container_type != 'postgres'
+      tags: create
+
+    - name: Generate random password
+      block:
+        - set_fact:
+            random_password: "{{ lookup('password', '/dev/null length=15 chars=ascii_letters') }}"
+        - name: Print random password
+          debug:
+            msg: "{{ random_password }}"
+      when: container_type == 'postgres'
+      tags: create
+
+    - name: Create container for postgres
+      shell: >-
+        if docker ps | grep {{ container_name }};
+        then echo 'container existed';
+        else
+        docker run
+        --name {{ container_name }}
+        --detach
+        --privileged
+        --memory={{ memory_limit }}
+        --cpus={{ cpu_limit }}
+        -e POSTGRES_PASSWORD={{ random_password }}
+        -P
+        {{ container_image }}
+        ;fi
+      register: container
+      when: container_type == 'postgres'
       tags: create
 
     - name: Start container
