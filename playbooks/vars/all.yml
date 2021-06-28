@@ -29,19 +29,34 @@ virt_utils:
 
 #docker_private_registries: "xxxxxxx"
 #docker_private_registries_kind_prefix: "{{ docker_private_registries }}/external/kindest/node"
-#docker_private_registries_jenkins_prefix: "{{ docker_private_registries }}/external/jenkins/jenkins"
-#docker_private_registries_mysql_prefix: "{{ docker_private_registries }}/external/mysql/mysql-server"
-#docker_private_registries_postgres_prefix: "{{ docker_private_registries }}/external/postgres"
 #docker_insecure_registries:
 #  - "{{ docker_private_registries }}"
 
 container:
     jenkins:
       image: jenkins/jenkins
+      #private_registory_image_prefix: "{{ docker_private_registries }}/external/jenkins/jenkins"
     mysql:
       image: mysql/mysql-server
+      #private_registory_image_prefix: "{{ docker_private_registries }}/external/mysql"
     postgres:
       image: postgres
+      #private_registory_image_prefix: "{{ docker_private_registries }}/external/postgres"
+    redis:
+      image: redis
+      #private_registory_image_prefix: "{{ docker_private_registries }}/external/redis"
+    mongodb:
+      image: mongo
+      #private_registory_image_prefix: "{{ docker_private_registries }}/external/mongo"
+    influxdb:
+      image: influxdb
+      #private_registory_image_prefix: "{{ docker_private_registries }}/external/influxdb"
+    prometheus:
+      image: prom/prometheus
+      #private_registory_image_prefix: "{{ docker_private_registries }}/external/prometheus"
+    grafana:
+      image: grafana/grafana
+      #private_registory_image_prefix: "{{ docker_private_registries }}/external/grafana"
 
 kind:
   kind_verison: "v0.11.0"

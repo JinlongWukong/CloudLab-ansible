@@ -46,7 +46,7 @@ class Container(object):
 
         return: container status(address, port_mapping), dict format
         """
-        self._create(self)
+        self._create()
 
         return {
             "status": self.status,

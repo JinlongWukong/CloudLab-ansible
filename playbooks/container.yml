@@ -11,37 +11,14 @@
     #cpu_limit: 2
     #tag: latest
   tasks:
-    - name: Set container image name for jenkins
+    - name: Set container image
       set_fact:
         container_image: |-
-          {% if docker_private_registries_jenkins_prefix is defined %}
-          {{ docker_private_registries_jenkins_prefix }}:{{ tag }}
+          {% if container[container_type].private_registory_image_prefix is defined %}
+          {{ container[container_type].private_registory_image_prefix }}:{{ tag }}
           {%- else %}
           {{ container[container_type].image }}:{{ tag }}
           {%- endif %}
-      when: container_type == 'jenkins'
-      tags: create
-
-    - name: Set container image name for mysql
-      set_fact:
-        container_image: |-
-          {% if docker_private_registries_mysql_prefix is defined %}
-          {{ docker_private_registries_mysql_prefix }}:{{ tag }}
-          {%- else %}
-          {{ container[container_type].image }}:{{ tag }}
-          {%- endif %}
-      when: container_type == 'mysql'
-      tags: create
-
-    - name: Set container image name for postgres
-      set_fact:
-        container_image: |-
-          {% if docker_private_registries_postgres_prefix is defined %}
-          {{ docker_private_registries_postgres_prefix }}:{{ tag }}
-          {%- else %}
-          {{ container[container_type].image }}:{{ tag }}
-          {%- endif %}
-      when: container_type == 'postgres'
       tags: create
 
     - name: Create container
