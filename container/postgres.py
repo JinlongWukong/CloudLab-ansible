@@ -15,7 +15,7 @@ class Postgres(Container):
             "status": self.status,
             "address": self.address,
             "port_mapping": self.port_mapping,
-            "additional_infor": dict({"postgres_password": self.postgres_passwd})
+            "additional_infor": {"postgres_password": self.postgres_passwd} if self.postgres_passwd else {}
         }
 
     def get_postgres_password(self):

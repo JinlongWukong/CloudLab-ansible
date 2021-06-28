@@ -15,7 +15,7 @@ class Jenkins(Container):
             "status": self.status,
             "address": self.address,
             "port_mapping": self.port_mapping,
-            "additional_infor": dict({"admin_password": self.initialAdminPassword})
+            "additional_infor": {"admin_password": self.initialAdminPassword} if self.initialAdminPassword else {}
         }
 
     def get(self):
@@ -30,7 +30,7 @@ class Jenkins(Container):
             "status": self.status,
             "address": self.address,
             "port_mapping": self.port_mapping,
-            "additional_infor": dict({"admin_password": self.initialAdminPassword})
+            "additional_infor": {"admin_password": self.initialAdminPassword} if self.initialAdminPassword else {}
         }
 
     def read_admin_password(self):

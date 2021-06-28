@@ -15,7 +15,7 @@ class Mysql(Container):
             "status": self.status,
             "address": self.address,
             "port_mapping": self.port_mapping,
-            "additional_infor": dict({"root_password": self.root_passwd})
+            "additional_infor": {"root_password": self.root_passwd} if self.root_passwd else {}
         }
 
     def get(self):
@@ -30,7 +30,7 @@ class Mysql(Container):
             "status": self.status,
             "address": self.address,
             "port_mapping": self.port_mapping,
-            "additional_infor": dict({"root_password": self.root_passwd})
+            "additional_infor": {"root_password": self.root_passwd} if self.root_passwd else {}
         }
 
     def read_root_password(self):
