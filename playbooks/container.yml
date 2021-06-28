@@ -11,7 +11,7 @@
     #cpu_limit: 2
     #tag: latest
   tasks:
-    - name: Set container image name
+    - name: Set container image name for jenkins
       set_fact:
         container_image: |-
           {% if docker_private_registries_jenkins_prefix is defined %}
@@ -20,6 +20,17 @@
           {{ container[container_type].image }}:{{ tag }}
           {%- endif %}
       when: container_type == 'jenkins'
+      tags: create
+
+    - name: Set container image name for mysql
+      set_fact:
+        container_image: |-
+          {% if docker_private_registries_mysql_prefix is defined %}
+          {{ docker_private_registries_mysql_prefix }}:{{ tag }}
+          {%- else %}
+          {{ container[container_type].image }}:{{ tag }}
+          {%- endif %}
+      when: container_type == 'mysql'
       tags: create
 
     - name: Create container
@@ -93,5 +104,13 @@
           delay: 2
           until: jenkins_passwd.rc == 0
           when: container_type == 'jenkins' and liveness.changed
+
+        - name: Get mysql root password
+          shell:  docker logs {{ container_name }} 2>&1 | grep GENERATED | awk '{print $5}'
+          register: mysql_passwd
+          retries: 60
+          delay: 2
+          until: mysql_passwd.rc == 0
+          when: container_type == 'mysql' and liveness.changed
 
       tags: start, restart, create, get

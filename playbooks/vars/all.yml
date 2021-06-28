@@ -30,12 +30,15 @@ virt_utils:
 #docker_private_registries: "xxxxxxx"
 #docker_private_registries_kind_prefix: "{{ docker_private_registries }}/external/kindest/node"
 #docker_private_registries_jenkins_prefix: "{{ docker_private_registries }}/external/jenkins/jenkins"
+#docker_private_registries_mysql_prefix: "{{ docker_private_registries }}/external/mysql/mysql-server"
 #docker_insecure_registries:
 #  - "{{ docker_private_registries }}"
 
 container:
     jenkins:
       image: jenkins/jenkins
+    mysql:
+      image: mysql/mysql-server
 
 kind:
   kind_verison: "v0.11.0"
