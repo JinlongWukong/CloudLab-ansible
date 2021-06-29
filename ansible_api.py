@@ -193,7 +193,7 @@ def host_reader():
         try:
             host = HOST(payload['Ip'], payload['User'], payload['Pass'], role=payload['Role'])
             logging.info("Host info fetching")
-            memory_avail, cpu_load, data['disk_usage'] = host.get_info()
+            memory_avail, cpu_load, data['disk_usage'], data['engine_status'] = host.get_info()
             logging.info("Host info fetched")
             data['cpu_load'] = float(cpu_load)
             data['memory_avail'] = int(memory_avail)

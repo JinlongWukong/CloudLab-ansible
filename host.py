@@ -61,7 +61,7 @@ class HOST(object):
         """
             Get host cpu/mem/disk usage
         :return:
-            cpu, mem, disk
+            cpu, mem, disk, engine_status(0,1)
         """
         result_code, callback = self.executor.execute('check-host.yml', self.ansible_inventory,
                                                       extra_vars={"role": self.role})
@@ -76,10 +76,12 @@ class HOST(object):
                 cpu_load = event['result']['msg']
             elif event['task'] == "Print virt vol disk usage" and event['host'] == self.ip:
                 disk_usage = event['result']['msg']
+            elif event['task'] == "Check engine liveness" and event['host'] == self.ip:
+                engine_status = event['result']['rc']
             else:
                 pass
 
-        return memory_avail, cpu_load, disk_usage
+        return memory_avail, cpu_load, disk_usage, engine_status
 
     def port_dnat(self, rules):
         """

@@ -46,3 +46,14 @@
       debug:
         msg: "{{ disk_usage.stdout | trim }}"
       tags: disk
+
+    - name: Check engine liveness
+      command: >-
+        {% if role == 'compute' %}
+        virsh connect
+        {% elif role == 'container' %}
+        docker info
+        {% else %}
+        false
+        {% endif %}
+      tags: engine
