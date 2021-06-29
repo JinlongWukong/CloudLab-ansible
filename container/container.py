@@ -30,7 +30,7 @@ class Container(object):
                                                                   },
                                                       tags=['create'])
         if result_code:
-            raise Exception(callback.get_all_result())
+            raise Exception(callback.get_failed_result())
 
         for event in callback.host_ok:
             if event['task'] == "Create container" and event['host'] == self.host_ip:
@@ -65,7 +65,7 @@ class Container(object):
                                                                   "container_type": self.container_type},
                                                       tags=['start'])
         if result_code:
-            raise Exception(callback.get_all_result())
+            raise Exception(callback.get_failed_result())
 
         for event in callback.host_ok:
             self.read_container_status(event)
@@ -88,7 +88,7 @@ class Container(object):
                                                                   "container_type": self.container_type},
                                                       tags=['restart'])
         if result_code:
-            raise Exception(callback.get_all_result())
+            raise Exception(callback.get_failed_result())
 
         for event in callback.host_ok:
             self.read_container_status(event)
@@ -110,7 +110,7 @@ class Container(object):
                                                       extra_vars={"container_name": self.name},
                                                       tags=['stop'])
         if result_code:
-            raise Exception(callback.get_all_result())
+            raise Exception(callback.get_failed_result())
 
     def delete(self):
         """Delete container
@@ -122,7 +122,7 @@ class Container(object):
                                                       extra_vars={"container_name": self.name},
                                                       tags=['delete'])
         if result_code:
-            raise Exception(callback.get_all_result())
+            raise Exception(callback.get_failed_result())
 
     def _get(self):
         """Internal common get container status information
@@ -134,7 +134,7 @@ class Container(object):
                                                                   "container_type": self.container_type},
                                                       tags=['get'])
         if result_code:
-            raise Exception(callback.get_all_result())
+            raise Exception(callback.get_failed_result())
 
         for event in callback.host_ok:
             self.read_container_status(event)

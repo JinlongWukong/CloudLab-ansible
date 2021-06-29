@@ -32,7 +32,7 @@ class VM(object):
                                                       extra_vars={"guest_name": self.name},
                                                       tags=['address', 'status', 'vnc'])
         if result_code:
-            raise Exception(callback.get_all_result())
+            raise Exception(callback.get_failed_result())
 
         for event in callback.host_ok:
             if event['task'] == "Check vm existence" and event['host'] == self.host_ip:
@@ -56,32 +56,32 @@ class VM(object):
                                                                   "os_type": self.os_type, "root_pass": self.root_pass},
                                                       tags=['create'])
         if result_code:
-            raise Exception(callback.get_all_result())
+            raise Exception(callback.get_failed_result())
 
     def start(self):
         result_code, callback = self.executor.execute('libvirt-vm.yml', self.ansible_inventory,
                                                       extra_vars={"guest_name": self.name},
                                                       tags=['start'])
         if result_code:
-            raise Exception(callback.get_all_result())
+            raise Exception(callback.get_failed_result())
 
     def shutdown(self):
         result_code, callback = self.executor.execute('libvirt-vm.yml', self.ansible_inventory,
                                                       extra_vars={"guest_name": self.name},
                                                       tags=['shutdown'])
         if result_code:
-            raise Exception(callback.get_all_result())
+            raise Exception(callback.get_failed_result())
 
     def reboot(self):
         result_code, callback = self.executor.execute('libvirt-vm.yml', self.ansible_inventory,
                                                       extra_vars={"guest_name": self.name},
                                                       tags=['reboot'])
         if result_code:
-            raise Exception(callback.get_all_result())
+            raise Exception(callback.get_failed_result())
 
     def delete(self):
         result_code, callback = self.executor.execute('libvirt-vm.yml', self.ansible_inventory,
                                                       extra_vars={"guest_name": self.name},
                                                       tags=['delete'])
         if result_code:
-            raise Exception(callback.get_all_result())
+            raise Exception(callback.get_failed_result())

@@ -21,6 +21,6 @@ class K8S(object):
                                                                   "proxy_env": {'https_proxy': self.proxy}
                                                                   })
         if result_code:
-            raise Exception(callback.get_all_result())
+            raise Exception(callback.get_failed_result())
 
         return
