@@ -38,7 +38,7 @@ container:
       #private_registory_image_prefix: "{{ docker_private_registries }}/external/jenkins/jenkins"
     mysql:
       image: mysql/mysql-server
-      #private_registory_image_prefix: "{{ docker_private_registries }}/external/mysql"
+      #private_registory_image_prefix: "{{ docker_private_registries }}/external/mysql/mysql-server"
     postgres:
       image: postgres
       #private_registory_image_prefix: "{{ docker_private_registries }}/external/postgres"
