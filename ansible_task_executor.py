@@ -72,3 +72,6 @@ class ResultCallback(CallbackBase):
 
     def get_all_result(self):
         return json.dumps(dict(ok=self.host_ok, unreachable=self.host_unreachable, failed=self.host_failed), indent=3)
+
+    def get_failed_result(self):
+        return json.dumps(dict(unreachable=self.host_unreachable, failed=self.host_failed), indent=3)
