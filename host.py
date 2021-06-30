@@ -55,7 +55,7 @@ class HOST(object):
         result_code, callback = self.executor.execute('route.yml', self.ansible_inventory,
                                                       extra_vars={"routes": routes})
         if result_code:
-            raise Exception(callback.get_all_result())
+            raise Exception(callback.get_failed_result())
 
     def get_info(self):
         """
@@ -67,7 +67,7 @@ class HOST(object):
                                                       extra_vars={"role": self.role})
 
         if result_code:
-            raise Exception(callback.get_all_result())
+            raise Exception(callback.get_failed_result())
 
         for event in callback.host_ok:
             if event['task'] == "Print total memory avail" and event['host'] == self.ip:
@@ -92,7 +92,7 @@ class HOST(object):
         result_code, callback = self.executor.execute('iptables.yml', self.ansible_inventory,
                                                       extra_vars={"rules": rules})
         if result_code:
-            raise Exception(callback.get_all_result())
+            raise Exception(callback.get_failed_result())
 
 
 class MultiHOST(HOST):
