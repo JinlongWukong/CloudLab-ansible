@@ -4,7 +4,7 @@
   gather_facts: yes
   vars_files:
   vars:
-    role: compute
+    #role: compute
     routes:
       []
       #- { subnet: 192.168.10.0/24, via: 10.124.44.169 }
