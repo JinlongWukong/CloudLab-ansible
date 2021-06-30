@@ -13,7 +13,7 @@
         destination_port: "{{ item.dport}}"
         to_destination: "{{ item.destination }}"
         state: "{{ item.state }}"
-        comment: "cloudLab DNAT"
+        comment: "DevLab DNAT"
         wait: 20
       loop: "{{ rules }}"
 

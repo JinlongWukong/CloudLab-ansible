@@ -1,7 +1,7 @@
-# CloudLab-ansible-vm
+# DevLab-ansible
 
 ## Overview
-This is a part of repo [CloudLab](https://github.com/JinlongWukong/CloudLab)
+This is a part of repo [DevLab](https://github.com/JinlongWukong/DevLab)
 
 ## Installation
 
