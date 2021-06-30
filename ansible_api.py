@@ -145,7 +145,7 @@ def host_action():
 
 ''' example payload
 curl -i -d '{
-    "Hosts": [["1.1.1.1", "root", "pass"],["2.2.2.2","root","pass"]],
+    "Hosts": [["1.1.1.1", "root", "pass", "compute"],["2.2.2.2","root","pass", "container"]],
     "Action": "route",
     "Routes": [{"subnet": "192.168.40.0/24", "via": "192.168.122.10"}]
 }' -H "Content-Type: application/json" -X POST http://localhost:9134/hosts

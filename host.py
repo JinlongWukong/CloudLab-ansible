@@ -14,7 +14,7 @@ class HOST(object):
         self.disk = None
         self.os_type = None
         self.subnet = subnet
-        self.ansible_inventory = "{} ansible_ssh_user={} ansible_ssh_pass={}".format(ip, user, password)
+        self.ansible_inventory = "{} ansible_ssh_user={} ansible_ssh_pass={} role={}".format(ip, user, password, role)
         self.executor = AnsibleTaskExecutor()
         self.proxy = os.getenv('https_proxy')
 
@@ -53,7 +53,7 @@ class HOST(object):
 
     def static_routes(self, routes):
         result_code, callback = self.executor.execute('route.yml', self.ansible_inventory,
-                                                      extra_vars={"routes": routes, "role": self.role})
+                                                      extra_vars={"routes": routes})
         if result_code:
             raise Exception(callback.get_all_result())
 
@@ -99,7 +99,8 @@ class MultiHOST(HOST):
     def __init__(self, hosts):
         self.ansible_inventory = ""
         for h in hosts:
-            if len(h) != 3:
+            if len(h) != 4:
                 continue
-            self.ansible_inventory += "{} ansible_ssh_user={} ansible_ssh_pass={}".format(h[0], h[1], h[2]) + "\n"
+            self.ansible_inventory += "{} ansible_ssh_user={} ansible_ssh_pass={} role={}".format(
+                h[0], h[1], h[2], h[3]) + "\n"
         self.executor = AnsibleTaskExecutor()
