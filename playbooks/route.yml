@@ -4,6 +4,7 @@
   gather_facts: yes
   vars_files:
   vars:
+    role: compute
     routes:
       []
       #- { subnet: 192.168.10.0/24, via: 10.124.44.169 }
@@ -29,6 +30,13 @@
     - name: Fetch default subnet
       shell: "ip route list | grep virbr0 | awk '{print $1}'"
       register: self_subnet
+      when: role == "compute"
+      tags: route
+
+    - name: Fetch default subnet
+      shell: "ip route list | grep docker0 | awk '{print $1}'"
+      register: self_subnet
+      when: role == "container"
       tags: route
 
     - name: Generate route file

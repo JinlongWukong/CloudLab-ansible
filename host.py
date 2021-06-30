@@ -53,7 +53,7 @@ class HOST(object):
 
     def static_routes(self, routes):
         result_code, callback = self.executor.execute('route.yml', self.ansible_inventory,
-                                                      extra_vars={"routes": routes})
+                                                      extra_vars={"routes": routes, "role": self.role})
         if result_code:
             raise Exception(callback.get_all_result())
 
