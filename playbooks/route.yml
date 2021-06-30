@@ -28,15 +28,15 @@
       tags: route
 
     - name: Fetch default subnet
-      shell: "ip route list | grep virbr0 | awk '{print $1}'"
+      shell: |
+        if [[ {{ role }} == "compute" ]]
+        then
+        ip route list | grep virbr0 | awk '{print $1}'
+        elif [[ {{ role }} == "container" ]]
+        then
+        ip route list | grep docker0 | awk '{print $1}'
+        fi
       register: self_subnet
-      when: role == "compute"
-      tags: route
-
-    - name: Fetch default subnet
-      shell: "ip route list | grep docker0 | awk '{print $1}'"
-      register: self_subnet
-      when: role == "container"
       tags: route
 
     - name: Generate route file
