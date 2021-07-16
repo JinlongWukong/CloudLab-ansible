@@ -28,6 +28,7 @@
         else
         docker run
         --name {{ container_name }}
+        --hostname {{ container_name }}
         --detach
         --privileged
         --memory={{ memory_limit }}
