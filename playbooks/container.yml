@@ -41,6 +41,27 @@
         - container_type != 'postgres'
       tags: create
 
+    - name: Create container using shell cmd
+      shell: >-
+        if docker ps | grep {{ container_name }};
+        then echo 'container existed';
+        else
+        docker run
+        --name {{ container_name }}
+        --hostname {{ container_name }}
+        --detach
+        --privileged
+        --memory={{ memory_limit }}
+        --cpus={{ cpu_limit }}
+        --tty
+        {{ container_image }}
+        sh
+        ;fi
+      register: container
+      when:
+        - container_type == 'shell'
+      tags: create
+
     - name: Generate random password
       block:
         - set_fact:
