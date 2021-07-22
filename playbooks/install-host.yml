@@ -161,6 +161,15 @@
       when: define_vol_pool.changed or (vol_pool_check.stdout and ' active' not in vol_pool_check.stdout)
       tags: vol_pool
 
+    - name: Create direcory .ssh
+      file:
+        path: /root/.ssh
+        state: directory
+        owner: root
+        group: root
+        mode: '700'
+      tags: ssh_key
+
     - name: Generate ssh key
       openssh_keypair:
         path: /root/.ssh/id_rsa
