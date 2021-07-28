@@ -17,3 +17,5 @@
         wait: 20
       loop: "{{ rules }}"
 
+    - name: Save iptables rule persistent
+      shell: service iptables save | true

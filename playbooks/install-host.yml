@@ -55,6 +55,11 @@
       tags: install_libvirt
       when: ansible_os_family == "Debian"
 
+    - name: Set iptables-persistent iptables-persistent/autosave yes
+      shell: echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
+      tags: install_libvirt
+      when: ansible_os_family == "Debian"
+
     - name: Install libvirt and dependencies
       package:
         name: "{{ libvirt.dependencies[ansible_os_family|lower] }}"
