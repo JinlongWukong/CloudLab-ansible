@@ -116,6 +116,14 @@
         - libvirtd
       tags: install_libvirt
 
+    - name: Start iptables service
+      service:
+        name: iptables
+        enabled: yes
+        state: restarted
+      when: ansible_os_family == "RedHat"
+      tags: install_libvirt
+
     - name: Download virt-utils
       unarchive:
         src: "{{ virt_utils.release }}"
