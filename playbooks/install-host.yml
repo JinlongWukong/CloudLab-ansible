@@ -164,12 +164,13 @@
     - name: Generate devlab iptables rule file
       template:
         src: devlab_iptabels.service.j2
-        dest: /etc/systemd/system/devlab_iptabels.service
+        dest: /etc/systemd/system/devlab_iptables.service
       tags: iptable
 
     - name: Enable systemd devlab service
       service:
-        name: devlab_iptabels
+        name: devlab_iptables
+        daemon_reload: yes
         enabled: yes
       tags: iptable
 
