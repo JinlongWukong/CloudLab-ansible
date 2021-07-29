@@ -90,6 +90,7 @@
         marker: '# {mark} this is configured by ansible iptables'
         insertafter: "^ExecStart="
         block: |
+          ExecStartPre=/bin/sh -c "iptables-restore < /etc/devlab_iptables.rules | true"
           ExecStartPost=/bin/sh -c "until virsh connect; do echo 'wait...';sleep 1; done"
           ExecStartPost=/bin/sh -c "iptables -D FORWARD -o virbr0 -m conntrack --ctstate NEW -j ACCEPT || true"
           ExecStartPost=/bin/sh -c "iptables -I FORWARD -o virbr0 -m conntrack --ctstate NEW -j ACCEPT"
