@@ -1,0 +1,10 @@
+[Unit]
+Description=Restore DevLab iptables DNAT rules at bootup
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/bash -c iptables-restore < /etc/devlab_iptables.rules
+
+[Install]
+WantedBy=multi-user.target

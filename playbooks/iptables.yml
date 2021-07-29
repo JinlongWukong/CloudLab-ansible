@@ -18,4 +18,4 @@
       loop: "{{ rules }}"
 
     - name: Save iptables rule persistent
-      shell: service iptables save | true
+      shell: iptables-save -t nat | grep -E "nat|DevLab DNAT|COMMIT" > /etc/devlab_iptables.rules

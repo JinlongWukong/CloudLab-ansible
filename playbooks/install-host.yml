@@ -55,11 +55,6 @@
       tags: install_libvirt
       when: ansible_os_family == "Debian"
 
-    - name: Set iptables-persistent iptables-persistent/autosave yes
-      shell: echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
-      tags: install_libvirt
-      when: ansible_os_family == "Debian"
-
     - name: Install libvirt and dependencies
       package:
         name: "{{ libvirt.dependencies[ansible_os_family|lower] }}"
@@ -116,14 +111,6 @@
         - libvirtd
       tags: install_libvirt
 
-    - name: Start iptables service
-      service:
-        name: iptables
-        enabled: yes
-        state: restarted
-      when: ansible_os_family == "RedHat"
-      tags: install_libvirt
-
     - name: Download virt-utils
       unarchive:
         src: "{{ virt_utils.release }}"
@@ -173,6 +160,18 @@
       shell: virsh pool-start {{ vol_pool_name }}
       when: define_vol_pool.changed or (vol_pool_check.stdout and ' active' not in vol_pool_check.stdout)
       tags: vol_pool
+
+    - name: Generate devlab iptables rule file
+      template:
+        src: devlab_iptabels.service.j2
+        dest: /etc/systemd/system/devlab_iptabels.service
+      tags: iptable
+
+    - name: Enable systemd devlab service
+      service:
+        name: devlab_iptabels
+        enabled: yes
+      tags: iptable
 
     - name: Create direcory .ssh
       file:
