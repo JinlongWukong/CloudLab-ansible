@@ -11,5 +11,5 @@ docker build -t deployer --build-arg https_proxy=xxxxxxx .
 ```
 #### Run container
 ```
-docker run -d --name devlab_deployer --net host --rm --env https_proxy=xxxx deployer
+docker run -d --name devlab_deployer --net host --rm --env http_proxy=xxxx deployer
 ```
