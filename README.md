@@ -7,7 +7,7 @@ This is a part of repo [DevLab](https://github.com/JinlongWukong/DevLab)
 
 #### Build docker image
 ```
-docker build -t deployer --build-arg https_proxy=xxxxxxx .
+docker build -t deployer --build-arg http_proxy=xxxxxxx .
 ```
 #### Run container
 ```
