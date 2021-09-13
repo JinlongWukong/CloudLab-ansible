@@ -245,6 +245,7 @@ def port_dnat():
 ''' example payload
 curl -i -d '{
     "Ip": "127.0.0.1",
+    "Port": 20000,
     "Pass": "xxxxxx",
     "User": "root",
     "Controller": 1,
@@ -257,7 +258,7 @@ def k8s():
     payload = request.get_json()
     logging.debug(payload)
 
-    field = {'Ip', 'User', 'Pass', 'Controller', 'Worker'}
+    field = {'Ip', 'Port', 'User', 'Pass', 'Controller', 'Worker'}
     if field - set(payload.keys()):
         error_msg = "Input json missing some field! " + "It must include " + str(field)
         logging.error(error_msg)
@@ -268,7 +269,7 @@ def k8s():
             return jsonify({"error": error_msg}), 400
 
         try:
-            cluster = K8S(payload['Ip'], payload['User'], payload['Pass'], payload['Controller'], payload['Worker'])
+            cluster = K8S(payload['Ip'], payload['Port'], payload['User'], payload['Pass'], payload['Controller'], payload['Worker'])
             logging.info("K8S cluster installation is started")
             cluster.install()
             logging.info("K8S cluster installation is done")

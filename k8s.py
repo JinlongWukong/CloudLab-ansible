@@ -4,13 +4,14 @@ import os
 
 class K8S(object):
 
-    def __init__(self, ip, user, password, controller_num=1, worker_num=3):
+    def __init__(self, ip, port, user, password, controller_num=1, worker_num=3):
         self.ip = ip
+        self.port = port
         self.user = user
         self.password = password
         self.controller_num = controller_num
         self.worker_num = worker_num
-        self.ansible_inventory = "{} ansible_ssh_user={} ansible_ssh_pass={}".format(ip, user, password)
+        self.ansible_inventory = "{} ansible_ssh_user={} ansible_ssh_pass={} ansible_port={}".format(ip, user, password, port)
         self.executor = AnsibleTaskExecutor()
         self.proxy = os.getenv('https_proxy')
 
