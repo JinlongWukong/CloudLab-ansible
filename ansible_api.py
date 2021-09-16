@@ -88,7 +88,7 @@ curl -i -d '{
 @app.route('/vm/addons', methods=['POST'])
 def vm_addons():
     data = {}
-    payload = request.args
+    payload = request.get_json()
     logging.debug(payload)
 
     field = {'Address', 'Username', 'Passwd', 'Port', 'Addons'}

@@ -3,8 +3,8 @@
   hosts: all
   gather_facts: yes
   vars:
+    subnet: 172.17.0.0/16
     #https_proxy:
-    #subnet: 172.17.0.0/16
     #addons:
     #  - docker
     #  - git
