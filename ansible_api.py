@@ -76,6 +76,37 @@ def vm_action():
 
     return jsonify(""), 202
 
+''' example payload
+curl -i -d '{
+    "Address": "127.0.0.1",
+    "Username": "xxxxxx",
+    "Passwd": "root",
+    "Port": 22,
+    "Addons": ["docker", "git"]
+}' -H "Content-Type: application/json" -X POST http://localhost:9134/vm/addons
+'''
+@app.route('/vm/addons', methods=['POST'])
+def vm_addons():
+    data = {}
+    payload = request.args
+    logging.debug(payload)
+
+    field = {'Address', 'Username', 'Passwd', 'Port', 'Addons'}
+    if field - set(payload.keys()):
+        error_msg = "Input json missing some field! " + "It must include " + str(field)
+        logging.error(error_msg)
+        return jsonify({"error": error_msg}), 400
+    else:
+        try:
+            vm = VM(payload['Address'], payload['Username'], payload['Passwd'], "", port=payload['Port'], addons=payload['Addons'])
+            logging.info("VM install addons " + str(vm.addons))
+            vm.install_addons()
+            logging.info("VM install addons done")
+        except Exception as e:
+            logging.error(str(e))
+            return jsonify({"error": str(e)}), 500
+
+    return jsonify(data), 200
 
 # example: curl -X GET http://localhost:9134/vm?vmName=test\&hostIp=127.0.0.1\&hostPass=xxxxx\&hostUser=root
 @app.route('/vm', methods=['GET'])
@@ -100,7 +131,6 @@ def vm_reader():
             return jsonify({"error": str(e)}), 500
 
     return jsonify(data), 200
-
 
 ''' example payload
 curl -i -d '{

@@ -1,0 +1,23 @@
+---
+- name: Install addons
+  hosts: all
+  gather_facts: yes
+  vars:
+    #https_proxy:
+    #subnet: 172.17.0.0/16
+    #addons:
+    #  - docker
+    #  - git
+  environment: "{{ proxy_env | default(omit)}}"
+  tasks:
+    - name: Install docker-ce
+      import_role:
+        name: docker
+      tags: docker
+      when: '"docker" in addons'
+
+    - name: Install git
+      package:
+        name: git
+        state: present
+      when: '"git" in addons'
